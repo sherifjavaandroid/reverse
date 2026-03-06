@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/Android_RE_Tracker.html" }
+  ]
+}
