@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>[ ANDROID RE TRACKER ] - H4CK3R M0DE</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='12' fill='%23050a0e'/><rect x='5' y='5' width='90' height='90' rx='8' fill='none' stroke='%2300ff41' stroke-width='2' opacity='0.6'/><text x='50' y='38' text-anchor='middle' fill='%2300ff41' font-family='monospace' font-size='22' font-weight='bold'>&gt;_</text><text x='50' y='62' text-anchor='middle' fill='%2300ff41' font-family='monospace' font-size='16' font-weight='bold'>RE</text><text x='50' y='82' text-anchor='middle' fill='%2300e5ff' font-family='monospace' font-size='10'>HACK</text><circle cx='50' cy='50' r='42' fill='none' stroke='%2300ff41' stroke-width='1' opacity='0.3'/></svg>">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 
@@ -91,6 +92,77 @@ body{
   to{opacity:1;transform:translateY(0)}
 }
 
+@keyframes slideInLeft{
+  from{opacity:0;transform:translateX(-30px)}
+  to{opacity:1;transform:translateX(0)}
+}
+
+@keyframes slideInRight{
+  from{opacity:0;transform:translateX(30px)}
+  to{opacity:1;transform:translateX(0)}
+}
+
+@keyframes hackReveal{
+  0%{clip-path:inset(0 100% 0 0)}
+  100%{clip-path:inset(0 0 0 0)}
+}
+
+@keyframes terminalBoot{
+  0%{opacity:0;transform:scaleY(0.01) scaleX(0.8)}
+  30%{opacity:1;transform:scaleY(1) scaleX(0.8)}
+  60%{transform:scaleY(1) scaleX(1)}
+  100%{transform:scaleY(1) scaleX(1)}
+}
+
+@keyframes textScramble{
+  0%{opacity:0;filter:blur(8px)}
+  50%{opacity:1;filter:blur(2px)}
+  100%{opacity:1;filter:blur(0)}
+}
+
+@keyframes progressPulse{
+  0%,100%{box-shadow:0 0 5px #00ff4140}
+  50%{box-shadow:0 0 20px #00ff4180,0 0 40px #00ff4130}
+}
+
+@keyframes hexFloat{
+  0%,100%{transform:translateY(0) rotate(0deg);opacity:0.15}
+  50%{transform:translateY(-20px) rotate(180deg);opacity:0.3}
+}
+
+@keyframes checkPop{
+  0%{transform:scale(1)}
+  30%{transform:scale(1.4)}
+  60%{transform:scale(0.9)}
+  100%{transform:scale(1)}
+}
+
+@keyframes ripple{
+  0%{box-shadow:0 0 0 0 rgba(0,255,65,0.4)}
+  100%{box-shadow:0 0 0 15px rgba(0,255,65,0)}
+}
+
+@keyframes headerSlide{
+  0%{transform:translateY(-100%);opacity:0}
+  100%{transform:translateY(0);opacity:1}
+}
+
+@keyframes counterUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes borderTrace{
+  0%{background-position:0% 0%}
+  100%{background-position:200% 0%}
+}
+
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  10%,30%,50%,70%,90%{transform:translateX(-2px)}
+  20%,40%,60%,80%{transform:translateX(2px)}
+}
+
 @keyframes skullPulse{
   0%,100%{opacity:1;filter:drop-shadow(0 0 8px #00ff41)}
   50%{opacity:0.7;filter:drop-shadow(0 0 15px #00ff41)}
@@ -99,7 +171,7 @@ body{
 .skull-art{
   text-align:center;font-size:0.55em;line-height:1.15;color:#00ff41;
   padding:15px 0 5px;opacity:0.6;
-  animation:skullPulse 3s ease-in-out infinite;
+  animation:skullPulse 3s ease-in-out infinite, textScramble 1.5s ease-out;
   font-family:'Fira Code',monospace;white-space:pre;
 }
 
@@ -109,6 +181,7 @@ body{
   border-bottom:1px solid var(--br);
   background:linear-gradient(180deg,rgba(0,255,65,0.03) 0%,transparent 100%);
   position:relative;
+  animation:terminalBoot 1s ease-out;
 }
 
 .header-tag{
@@ -121,7 +194,7 @@ h1{
   text-align:center;padding:5px 15px 8px;
   color:#00ff41;
   text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px #00ff4180,0 0 80px #00ff4140;
-  animation:neonPulse 2s ease-in-out infinite;
+  animation:neonPulse 2s ease-in-out infinite, hackReveal 1.5s ease-out;
   letter-spacing:3px;
 }
 
@@ -131,6 +204,7 @@ h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #0
 .sub{
   text-align:center;color:var(--t3);font-size:.82em;margin-bottom:10px;
   font-family:'Share Tech Mono',monospace;letter-spacing:1px;
+  animation:hackReveal 2s ease-out;
 }
 .sub .prompt{color:#00ff41}
 
@@ -143,6 +217,16 @@ h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #0
   background:rgba(0,255,65,0.04);border:1px solid rgba(0,255,65,0.15);
   border-radius:4px;padding:5px 14px;font-size:0.7em;color:var(--t3);
   font-family:'Share Tech Mono',monospace;
+  animation:counterUp 0.8s ease-out both;
+  transition:.3s;
+}
+.stat-item:nth-child(1){animation-delay:0.3s}
+.stat-item:nth-child(2){animation-delay:0.5s}
+.stat-item:nth-child(3){animation-delay:0.7s}
+.stat-item:nth-child(4){animation-delay:0.9s}
+.stat-item:hover{
+  background:rgba(0,255,65,0.1);border-color:#00ff41;
+  box-shadow:0 0 15px #00ff4130;transform:translateY(-2px);
 }
 .stat-item span{color:var(--ac);font-weight:600}
 
@@ -154,6 +238,7 @@ h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #0
   backdrop-filter:blur(12px);z-index:100;
   border-bottom:1px solid var(--br);
   border-top:1px solid var(--br);
+  animation:headerSlide 0.6s ease-out;
 }
 
 .toolbar a,.toolbar button{
@@ -199,7 +284,12 @@ h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #0
 }
 .btn-export:hover{box-shadow:0 0 15px #00e5ff40!important;border-color:#00e5ff!important}
 
-.save-msg{color:var(--g);font-size:.8em;padding:4px 10px;display:none;align-items:center;gap:4px;font-family:'Share Tech Mono',monospace}
+.save-msg{
+  color:var(--g);font-size:.8em;padding:4px 10px;display:none;
+  align-items:center;gap:4px;font-family:'Share Tech Mono',monospace;
+  animation:fadeInUp 0.3s ease-out;
+  text-shadow:0 0 10px #00ff4180;
+}
 
 /* Box */
 .box{max-width:1300px;margin:0 auto;padding:15px}
@@ -209,7 +299,7 @@ h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #0
   margin:20px 0;padding:18px;
   background:var(--c1);border-radius:4px;
   border:1px solid var(--br);
-  animation:borderGlow 3s ease-in-out infinite;
+  animation:borderGlow 3s ease-in-out infinite, fadeInUp 0.8s ease-out;
   position:relative;overflow:hidden;
 }
 .total-bar::before{
@@ -286,14 +376,28 @@ h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #0
   border:1px solid var(--br);
   border-radius:4px;overflow:hidden;
   background:var(--c1);
-  transition:.3s;
+  transition:.4s cubic-bezier(0.4,0,0.2,1);
   position:relative;
+  opacity:0;
+  animation:slideInLeft 0.6s ease-out forwards;
 }
+.fw:nth-child(1){animation-delay:0.1s}
+.fw:nth-child(2){animation-delay:0.2s}
+.fw:nth-child(3){animation-delay:0.3s}
+.fw:nth-child(4){animation-delay:0.4s}
+.fw:nth-child(5){animation-delay:0.5s}
+.fw:nth-child(6){animation-delay:0.6s}
 .fw::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--br),transparent);
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,#00ff41,#00e5ff,transparent);
+  background-size:200% 100%;
+  animation:borderTrace 3s linear infinite;
 }
-.fw:hover{border-color:rgba(0,255,65,0.3)}
+.fw:hover{
+  border-color:rgba(0,255,65,0.4);
+  transform:translateX(5px);
+  box-shadow:0 0 20px #00ff4115,-5px 0 30px #00ff4110;
+}
 
 /* Framework Header */
 .fh{
@@ -315,6 +419,11 @@ h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #0
   color:#000;font-family:'Orbitron',sans-serif;
   position:relative;
   box-shadow:0 0 15px currentColor;
+  transition:.4s;
+}
+.fh:hover .fi{
+  transform:rotate(5deg) scale(1.1);
+  box-shadow:0 0 25px currentColor,0 0 50px currentColor;
 }
 
 .ft h2{
@@ -360,9 +469,13 @@ h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #0
   background:rgba(0,255,65,0.02);
   border:1px solid rgba(0,255,65,0.08);
   border-radius:4px;margin:10px 0;overflow:hidden;
-  transition:.3s;
+  transition:.4s cubic-bezier(0.4,0,0.2,1);
 }
-.sc:hover{border-color:rgba(0,255,65,0.2)}
+.sc:hover{
+  border-color:rgba(0,255,65,0.25);
+  transform:translateX(3px);
+  background:rgba(0,255,65,0.04);
+}
 
 .sec-h{
   padding:12px 14px;display:flex;align-items:center;
@@ -418,6 +531,13 @@ h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #0
   border:1px solid rgba(255,0,255,0.15);
   font-family:'Fira Code',monospace;
   text-shadow:0 0 5px #ff00ff40;
+  transition:.3s;cursor:default;
+}
+.tool:hover{
+  background:rgba(255,0,255,0.15);
+  border-color:#ff00ff;
+  box-shadow:0 0 12px #ff00ff30;
+  transform:translateY(-1px);
 }
 
 /* Items */
@@ -425,11 +545,13 @@ h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #0
   display:flex;align-items:flex-start;gap:8px;
   padding:7px 4px;
   border-bottom:1px solid rgba(0,255,65,0.05);
-  transition:.15s;
+  transition:.3s cubic-bezier(0.4,0,0.2,1);
 }
 .item:hover{
-  background:rgba(0,255,65,0.03);
+  background:rgba(0,255,65,0.05);
   border-radius:2px;
+  padding-left:10px;
+  border-left:2px solid #00ff41;
 }
 .item.done{opacity:.4}
 .item.done .item-text{
@@ -449,6 +571,7 @@ h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #0
 .cb:checked{
   background:#00ff41;border-color:#00ff41;
   box-shadow:0 0 10px #00ff4180;
+  animation:checkPop 0.4s ease-out, ripple 0.6s ease-out;
 }
 .cb:checked::after{content:"\2713";color:#000;font-size:12px;font-weight:700}
 
@@ -479,6 +602,78 @@ h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #0
   vertical-align:middle;
 }
 
+/* Loading Screen */
+.loading-screen{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#050a0e;z-index:99999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity 0.5s,visibility 0.5s;
+}
+.loading-screen.hide{opacity:0;visibility:hidden;pointer-events:none}
+.loading-logo{
+  font-family:'Orbitron',sans-serif;font-size:2em;color:#00ff41;
+  text-shadow:0 0 20px #00ff41,0 0 40px #00ff41;
+  animation:neonPulse 1s ease-in-out infinite;
+  margin-bottom:30px;
+}
+.loading-bar-wrap{
+  width:300px;height:4px;background:rgba(0,255,65,0.1);
+  border-radius:2px;overflow:hidden;border:1px solid rgba(0,255,65,0.2);
+}
+.loading-bar-fill{
+  height:100%;width:0%;background:#00ff41;border-radius:2px;
+  box-shadow:0 0 10px #00ff41;
+  transition:width 0.3s;
+}
+.loading-text{
+  font-family:'Share Tech Mono',monospace;font-size:0.75em;
+  color:var(--t3);margin-top:15px;
+  animation:blink 0.8s step-end infinite;
+}
+.loading-lines{
+  font-family:'Fira Code',monospace;font-size:0.65em;
+  color:rgba(0,255,65,0.4);margin-top:20px;
+  text-align:left;width:300px;height:60px;overflow:hidden;
+}
+
+/* Floating hex particles */
+.hex-particle{
+  position:fixed;font-family:'Fira Code',monospace;
+  color:rgba(0,255,65,0.08);font-size:10px;
+  pointer-events:none;z-index:-1;
+  animation:hexFloat 6s ease-in-out infinite;
+}
+
+/* Progress bar animated stripes */
+.pfill{
+  background:linear-gradient(90deg,#00ff41,#00e5ff) !important;
+  background-size:200% 100%;
+  animation:progressPulse 2s ease-in-out infinite;
+}
+
+/* Save button pulse when data changes */
+.btn-save.pulse{animation:ripple 1s ease-out}
+
+/* Section open animation */
+.sb.open{animation:fadeInUp 0.3s ease-out}
+
+/* Toolbar buttons stagger */
+.toolbar a,.toolbar button{animation:counterUp 0.5s ease-out both}
+.toolbar>:nth-child(1){animation-delay:0.05s}
+.toolbar>:nth-child(2){animation-delay:0.1s}
+.toolbar>:nth-child(3){animation-delay:0.15s}
+.toolbar>:nth-child(4){animation-delay:0.2s}
+.toolbar>:nth-child(5){animation-delay:0.25s}
+.toolbar>:nth-child(6){animation-delay:0.3s}
+.toolbar>:nth-child(7){animation-delay:0.35s}
+
+/* Filter button press effect */
+.filter-bar button:active{transform:scale(0.92)}
+.filter-bar button{transition:.3s cubic-bezier(0.4,0,0.2,1)}
+
+/* New badge glitch enhanced */
+.new-badge{animation:glitch 2s infinite,shake 5s ease-in-out infinite}
+
 .hidden{display:none!important}
 
 /* Scrollbar */
@@ -500,6 +695,13 @@ h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #0
 </style>
 </head>
 <body>
+
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-logo">&gt;_ INITIALIZING</div>
+  <div class="loading-bar-wrap"><div class="loading-bar-fill" id="loadBar"></div></div>
+  <div class="loading-text" id="loadText">[ CONNECTING TO SECURE CHANNEL... ]</div>
+  <div class="loading-lines" id="loadLines"></div>
+</div>
 
 <canvas id="matrix-bg"></canvas>
 
@@ -564,6 +766,67 @@ h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #0
 <p class="last-save" id="footer"></p>
 
 <script>
+// Loading Screen Animation
+(function(){
+  const bar=document.getElementById('loadBar');
+  const text=document.getElementById('loadText');
+  const lines=document.getElementById('loadLines');
+  const msgs=[
+    '[ CONNECTING TO SECURE CHANNEL... ]',
+    '[ DECRYPTING DATABASE... ]',
+    '[ LOADING EXPLOIT MODULES... ]',
+    '[ INITIALIZING FRIDA HOOKS... ]',
+    '[ BYPASSING SECURITY... ]',
+    '[ INJECTING PAYLOADS... ]',
+    '[ SYSTEM READY ]'
+  ];
+  const bootLines=[
+    '> kernel: Android RE Tracker v2.0',
+    '> net: encrypted tunnel established',
+    '> auth: root access granted',
+    '> mod: 6 frameworks loaded',
+    '> sec: anti-detection active',
+    '> sys: all systems operational',
+    '> hack: ready to pwn'
+  ];
+  let progress=0;
+  let msgIdx=0;
+  let lineIdx=0;
+  const interval=setInterval(()=>{
+    progress+=Math.random()*18+5;
+    if(progress>100)progress=100;
+    bar.style.width=progress+'%';
+    if(progress>msgIdx*(100/msgs.length)&&msgIdx<msgs.length){
+      text.textContent=msgs[msgIdx];msgIdx++;
+    }
+    if(progress>lineIdx*(100/bootLines.length)&&lineIdx<bootLines.length){
+      lines.innerHTML+=bootLines[lineIdx]+'<br>';lineIdx++;
+    }
+    if(progress>=100){
+      clearInterval(interval);
+      setTimeout(()=>{
+        document.getElementById('loadingScreen').classList.add('hide');
+      },400);
+    }
+  },180);
+})();
+
+// Floating hex particles
+(function(){
+  const hexChars=['0x4F','0xFF','0xDE','0xAD','0xBE','0xEF','0x41','0x52','0x45','0x00','0xCA','0xFE'];
+  for(let i=0;i<15;i++){
+    const el=document.createElement('div');
+    el.className='hex-particle';
+    el.textContent=hexChars[Math.floor(Math.random()*hexChars.length)];
+    el.style.left=Math.random()*100+'%';
+    el.style.top=Math.random()*100+'%';
+    el.style.animationDelay=Math.random()*6+'s';
+    el.style.animationDuration=(4+Math.random()*6)+'s';
+    el.style.fontSize=(8+Math.random()*6)+'px';
+    document.body.appendChild(el);
+  }
+})();
+
 // Matrix Rain Background
 const canvas=document.getElementById('matrix-bg');
 const ctx=canvas.getContext('2d');
@@ -845,7 +1108,19 @@ function updateAllProgress(){
     if(fp)fp.style.width=(fwAll?fwDone/fwAll*100:0)+'%';
     if(fpt)fpt.textContent=Math.round(fwAll?fwDone/fwAll*100:0)+'%';
   });
-  document.getElementById('totalPct').textContent=Math.round(totalAll?totalDone/totalAll*100:0)+'%';
+  // Animate percentage counter
+  const pctEl=document.getElementById('totalPct');
+  const targetPct=Math.round(totalAll?totalDone/totalAll*100:0);
+  const currentPct=parseInt(pctEl.textContent)||0;
+  if(currentPct!==targetPct){
+    let c=currentPct;
+    const step=targetPct>currentPct?1:-1;
+    const iv=setInterval(()=>{
+      c+=step;
+      pctEl.textContent=c+'%';
+      if(c===targetPct)clearInterval(iv);
+    },20);
+  }
   document.getElementById('totalCount').textContent=totalDone+' / '+totalAll+' targets compromised';
   document.getElementById('totalFill').style.width=(totalAll?totalDone/totalAll*100:0)+'%';
 }
