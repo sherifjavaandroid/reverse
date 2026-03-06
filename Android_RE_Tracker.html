@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[ ANDROID RE TRACKER ] - H4CK3R M0DE</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#050a0e;
+  --c1:#0a1a14;
+  --c2:#0d2218;
+  --br:#0f3a2a;
+  --ac:#00ff41;
+  --ac2:#00e5ff;
+  --g:#00ff41;
+  --r:#ff0040;
+  --o:#ffb300;
+  --cy:#00e5ff;
+  --pk:#ff00ff;
+  --t1:#c0ffc0;
+  --t2:#6aff6a;
+  --t3:#2d8a4e;
+  --glow:#00ff4180;
+  --glow2:#00e5ff60;
+  --scanline:rgba(0,255,65,0.03);
+}
+
+/* Matrix Rain Canvas */
+#matrix-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;opacity:0.12}
+
+/* Scanline overlay */
+body::before{
+  content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,65,0.015) 2px,rgba(0,255,65,0.015) 4px);
+  pointer-events:none;z-index:9999;
+}
+
+/* CRT flicker */
+body::after{
+  content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,0.4) 100%);
+  pointer-events:none;z-index:9998;
+}
+
+body{
+  background:var(--bg);color:var(--t1);
+  font-family:'Fira Code','Share Tech Mono',monospace;
+  line-height:1.7;
+  overflow-x:hidden;
+}
+
+/* Glitch Keyframes */
+@keyframes glitch{
+  0%{text-shadow:2px 0 #ff0040,-2px 0 #00e5ff}
+  20%{text-shadow:-2px 0 #ff0040,2px 0 #00e5ff}
+  40%{text-shadow:2px 0 #ff0040,-2px 0 #00e5ff}
+  60%{text-shadow:-1px 0 #ff0040,1px 0 #00e5ff}
+  80%{text-shadow:1px 0 #ff0040,-1px 0 #00e5ff}
+  100%{text-shadow:0 0 #ff0040,0 0 #00e5ff}
+}
+
+@keyframes neonPulse{
+  0%,100%{text-shadow:0 0 7px #00ff41,0 0 10px #00ff41,0 0 21px #00ff41,0 0 42px #00ff41}
+  50%{text-shadow:0 0 4px #00ff41,0 0 7px #00ff41,0 0 13px #00ff41,0 0 25px #00ff41}
+}
+
+@keyframes borderGlow{
+  0%,100%{box-shadow:0 0 5px #00ff4140,inset 0 0 5px #00ff4110}
+  50%{box-shadow:0 0 15px #00ff4160,inset 0 0 10px #00ff4120}
+}
+
+@keyframes typing{
+  from{width:0}to{width:100%}
+}
+
+@keyframes blink{
+  50%{border-color:transparent}
+}
+
+@keyframes dataStream{
+  0%{background-position:0% 0%}
+  100%{background-position:0% 100%}
+}
+
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes skullPulse{
+  0%,100%{opacity:1;filter:drop-shadow(0 0 8px #00ff41)}
+  50%{opacity:0.7;filter:drop-shadow(0 0 15px #00ff41)}
+}
+
+.skull-art{
+  text-align:center;font-size:0.55em;line-height:1.15;color:#00ff41;
+  padding:15px 0 5px;opacity:0.6;
+  animation:skullPulse 3s ease-in-out infinite;
+  font-family:'Fira Code',monospace;white-space:pre;
+}
+
+/* Header */
+.header-wrap{
+  text-align:center;padding:10px 15px 5px;
+  border-bottom:1px solid var(--br);
+  background:linear-gradient(180deg,rgba(0,255,65,0.03) 0%,transparent 100%);
+  position:relative;
+}
+
+.header-tag{
+  font-family:'Fira Code',monospace;font-size:0.7em;color:var(--t3);
+  letter-spacing:3px;margin-bottom:5px;
+}
+
+h1{
+  font-family:'Orbitron',sans-serif;font-size:2.2em;
+  text-align:center;padding:5px 15px 8px;
+  color:#00ff41;
+  text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px #00ff4180,0 0 80px #00ff4140;
+  animation:neonPulse 2s ease-in-out infinite;
+  letter-spacing:3px;
+}
+
+h1 .red{color:#ff0040;text-shadow:0 0 10px #ff0040,0 0 20px #ff0040,0 0 40px #ff004080}
+h1 .cyan{color:#00e5ff;text-shadow:0 0 10px #00e5ff,0 0 20px #00e5ff,0 0 40px #00e5ff80}
+
+.sub{
+  text-align:center;color:var(--t3);font-size:.82em;margin-bottom:10px;
+  font-family:'Share Tech Mono',monospace;letter-spacing:1px;
+}
+.sub .prompt{color:#00ff41}
+
+/* Stats Banner */
+.stats-banner{
+  display:flex;gap:15px;justify-content:center;flex-wrap:wrap;
+  padding:10px 15px;margin-bottom:5px;
+}
+.stat-item{
+  background:rgba(0,255,65,0.04);border:1px solid rgba(0,255,65,0.15);
+  border-radius:4px;padding:5px 14px;font-size:0.7em;color:var(--t3);
+  font-family:'Share Tech Mono',monospace;
+}
+.stat-item span{color:var(--ac);font-weight:600}
+
+/* Toolbar */
+.toolbar{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+  padding:12px;position:sticky;top:0;
+  background:rgba(5,10,14,.97);
+  backdrop-filter:blur(12px);z-index:100;
+  border-bottom:1px solid var(--br);
+  border-top:1px solid var(--br);
+}
+
+.toolbar a,.toolbar button{
+  padding:7px 14px;border-radius:3px;
+  background:var(--c1);color:var(--t3);
+  text-decoration:none;font-size:.75em;
+  border:1px solid var(--br);cursor:pointer;
+  transition:.3s;font-family:'Fira Code',monospace;
+  text-transform:uppercase;letter-spacing:1px;
+  position:relative;overflow:hidden;
+}
+
+.toolbar a::before,.toolbar button::before{
+  content:'';position:absolute;top:0;left:-100%;
+  width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(0,255,65,0.1),transparent);
+  transition:left .5s;
+}
+.toolbar a:hover::before,.toolbar button:hover::before{left:100%}
+
+.toolbar a:hover,.toolbar button:hover{
+  background:rgba(0,255,65,0.1);color:#00ff41;
+  border-color:#00ff41;
+  box-shadow:0 0 10px #00ff4140,inset 0 0 10px #00ff4110;
+}
+
+.btn-save{
+  background:rgba(0,255,65,0.1)!important;color:#00ff41!important;
+  border-color:#00ff41!important;font-weight:600;
+  box-shadow:0 0 8px #00ff4130;
+}
+.btn-save:hover{box-shadow:0 0 20px #00ff4160!important}
+
+.btn-reset{
+  background:rgba(255,0,64,0.1)!important;color:#ff0040!important;
+  border-color:#ff004080!important;
+}
+.btn-reset:hover{box-shadow:0 0 15px #ff004040!important;border-color:#ff0040!important}
+
+.btn-export{
+  background:rgba(0,229,255,0.1)!important;color:#00e5ff!important;
+  border-color:#00e5ff80!important;
+}
+.btn-export:hover{box-shadow:0 0 15px #00e5ff40!important;border-color:#00e5ff!important}
+
+.save-msg{color:var(--g);font-size:.8em;padding:4px 10px;display:none;align-items:center;gap:4px;font-family:'Share Tech Mono',monospace}
+
+/* Box */
+.box{max-width:1300px;margin:0 auto;padding:15px}
+
+/* Total Bar */
+.total-bar{
+  margin:20px 0;padding:18px;
+  background:var(--c1);border-radius:4px;
+  border:1px solid var(--br);
+  animation:borderGlow 3s ease-in-out infinite;
+  position:relative;overflow:hidden;
+}
+.total-bar::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,#00ff41,transparent);
+}
+.total-bar h2{
+  color:#00ff41;font-size:1.1em;margin-bottom:8px;
+  font-family:'Orbitron',sans-serif;letter-spacing:2px;
+  text-shadow:0 0 10px #00ff4140;
+}
+
+.total-info{display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.total-info span{color:var(--t3);font-size:.82em;font-family:'Share Tech Mono',monospace}
+.total-info .big{
+  font-size:1.8em;font-weight:700;color:#00ff41;
+  font-family:'Orbitron',sans-serif;
+  text-shadow:0 0 15px #00ff4180;
+}
+
+.pbar{
+  width:100%;height:14px;
+  background:rgba(0,255,65,0.05);
+  border-radius:2px;overflow:hidden;
+  border:1px solid rgba(0,255,65,0.15);
+}
+.pfill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,#00ff41,#00e5ff);
+  transition:width .4s;
+  box-shadow:0 0 15px #00ff4180;
+  position:relative;
+}
+.pfill::after{
+  content:'';position:absolute;top:0;right:0;bottom:0;width:20px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3));
+  animation:dataStream 1s linear infinite;
+}
+
+/* Filter Bar */
+.filter-bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:8px 0}
+.filter-bar button{
+  padding:5px 14px;border-radius:3px;
+  background:var(--c1);color:var(--t3);
+  border:1px solid var(--br);cursor:pointer;
+  font-size:.75em;font-family:'Fira Code',monospace;
+  transition:.3s;text-transform:uppercase;letter-spacing:1px;
+}
+.filter-bar button.active{
+  background:rgba(0,255,65,0.1);color:#00ff41;
+  border-color:#00ff41;
+  box-shadow:0 0 10px #00ff4130;
+}
+
+/* Search */
+.search-box{
+  padding:8px 14px;border-radius:3px;
+  background:var(--c1);color:#00ff41;
+  border:1px solid var(--br);font-size:.82em;
+  width:260px;font-family:'Fira Code',monospace;
+  outline:none;transition:.3s;
+  letter-spacing:1px;
+}
+.search-box::placeholder{color:var(--t3);opacity:0.6}
+.search-box:focus{
+  border-color:#00ff41;
+  box-shadow:0 0 15px #00ff4130;
+  background:rgba(0,255,65,0.03);
+}
+
+/* Framework Wrapper */
+.fw{
+  margin:20px 0;
+  border:1px solid var(--br);
+  border-radius:4px;overflow:hidden;
+  background:var(--c1);
+  transition:.3s;
+  position:relative;
+}
+.fw::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--br),transparent);
+}
+.fw:hover{border-color:rgba(0,255,65,0.3)}
+
+/* Framework Header */
+.fh{
+  padding:18px;cursor:pointer;
+  display:flex;align-items:center;gap:14px;
+  transition:.2s;user-select:none;
+  position:relative;
+}
+.fh:hover{background:rgba(0,255,65,0.03)}
+.fh::after{
+  content:'';position:absolute;bottom:0;left:18px;right:18px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--br),transparent);
+}
+
+.fi{
+  width:52px;height:52px;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1em;font-weight:700;flex-shrink:0;
+  color:#000;font-family:'Orbitron',sans-serif;
+  position:relative;
+  box-shadow:0 0 15px currentColor;
+}
+
+.ft h2{
+  font-size:1.1em;margin-bottom:2px;
+  font-family:'Orbitron',sans-serif;
+  letter-spacing:1px;color:var(--t1);
+}
+.ft p{
+  color:var(--t3);font-size:.72em;
+  font-family:'Fira Code',monospace;
+  letter-spacing:0.5px;
+}
+
+.fprog{margin-top:5px;display:flex;align-items:center;gap:8px}
+.fprog .mini-bar{
+  width:130px;height:6px;
+  background:rgba(0,255,65,0.08);
+  border-radius:2px;overflow:hidden;
+  border:1px solid rgba(0,255,65,0.1);
+}
+.fprog .mini-fill{
+  height:100%;border-radius:2px;
+  background:#00ff41;transition:width .4s;
+  box-shadow:0 0 8px #00ff4180;
+}
+.fprog .pct{
+  font-size:.72em;color:#00ff41;
+  font-family:'Share Tech Mono',monospace;
+}
+
+.arrow{
+  transition:transform .3s;display:inline-block;
+  color:#00ff41;flex-shrink:0;margin-left:auto;
+  font-size:.9em;filter:drop-shadow(0 0 3px #00ff41);
+}
+.arrow.open{transform:rotate(90deg)}
+
+.fb{padding:0 18px 18px;display:none}
+.fb.open{display:block;animation:fadeInUp 0.3s ease}
+
+/* Section Card */
+.sc{
+  background:rgba(0,255,65,0.02);
+  border:1px solid rgba(0,255,65,0.08);
+  border-radius:4px;margin:10px 0;overflow:hidden;
+  transition:.3s;
+}
+.sc:hover{border-color:rgba(0,255,65,0.2)}
+
+.sec-h{
+  padding:12px 14px;display:flex;align-items:center;
+  gap:10px;cursor:pointer;transition:.2s;user-select:none;
+}
+.sec-h:hover{background:rgba(0,255,65,0.04)}
+.sec-h h3{
+  font-size:.85em;flex:1;
+  font-family:'Fira Code',monospace;
+  color:var(--t2);letter-spacing:0.5px;
+}
+
+.sec-prog{display:flex;align-items:center;gap:6px}
+.sec-prog .mini-bar{
+  width:80px;height:5px;
+  background:rgba(0,255,65,0.06);
+  border-radius:2px;overflow:hidden;
+}
+.sec-prog .mini-fill{
+  height:100%;border-radius:2px;
+  background:#00e5ff;transition:width .4s;
+  box-shadow:0 0 6px #00e5ff80;
+}
+.sec-prog .cnt{
+  font-size:.68em;color:var(--t3);
+  font-family:'Share Tech Mono',monospace;
+}
+
+.badge{
+  padding:2px 8px;border-radius:2px;font-size:.65em;
+  background:rgba(0,229,255,0.08);color:#00e5ff;
+  border:1px solid rgba(0,229,255,0.15);
+  font-family:'Share Tech Mono',monospace;
+}
+
+.new-badge{
+  background:rgba(255,0,64,0.1);color:#ff0040;
+  padding:2px 7px;border-radius:2px;font-size:.62em;
+  font-weight:600;margin-left:4px;
+  border:1px solid rgba(255,0,64,0.2);
+  text-shadow:0 0 5px #ff004060;
+  animation:glitch 3s infinite;
+}
+
+.sb{padding:0 14px 14px;display:none}
+.sb.open{display:block;animation:fadeInUp 0.2s ease}
+
+/* Tools */
+.tools{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.tool{
+  padding:3px 8px;border-radius:2px;font-size:.7em;
+  background:rgba(255,0,255,0.06);color:#ff00ff;
+  border:1px solid rgba(255,0,255,0.15);
+  font-family:'Fira Code',monospace;
+  text-shadow:0 0 5px #ff00ff40;
+}
+
+/* Items */
+.item{
+  display:flex;align-items:flex-start;gap:8px;
+  padding:7px 4px;
+  border-bottom:1px solid rgba(0,255,65,0.05);
+  transition:.15s;
+}
+.item:hover{
+  background:rgba(0,255,65,0.03);
+  border-radius:2px;
+}
+.item.done{opacity:.4}
+.item.done .item-text{
+  text-decoration:line-through;
+  text-decoration-color:#00ff4180;
+}
+
+/* Custom Checkbox - Hacker style */
+.cb{
+  width:18px;height:18px;border-radius:2px;
+  border:2px solid var(--t3);background:transparent;
+  cursor:pointer;flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;
+  transition:.3s;appearance:none;-webkit-appearance:none;
+}
+.cb:hover{border-color:#00ff41;box-shadow:0 0 8px #00ff4140}
+.cb:checked{
+  background:#00ff41;border-color:#00ff41;
+  box-shadow:0 0 10px #00ff4180;
+}
+.cb:checked::after{content:"\2713";color:#000;font-size:12px;font-weight:700}
+
+.item-text{
+  font-size:.8em;color:var(--t2);cursor:pointer;flex:1;
+  font-family:'Fira Code',monospace;
+  letter-spacing:0.3px;
+}
+.item-text:hover{color:#00ff41}
+
+.last-save{
+  text-align:center;color:var(--t3);font-size:.72em;padding:10px;
+  font-family:'Share Tech Mono',monospace;
+}
+
+/* Terminal footer */
+.terminal-footer{
+  text-align:center;padding:20px;
+  font-family:'Share Tech Mono',monospace;
+  color:var(--t3);font-size:0.7em;
+  border-top:1px solid var(--br);
+  margin-top:20px;
+}
+.terminal-footer .cursor{
+  display:inline-block;width:8px;height:14px;
+  background:#00ff41;margin-left:4px;
+  animation:blink 1s step-end infinite;
+  vertical-align:middle;
+}
+
+.hidden{display:none!important}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(0,255,65,0.2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,255,65,0.4)}
+
+/* Selection */
+::selection{background:rgba(0,255,65,0.3);color:#fff}
+
+@media(max-width:768px){
+  h1{font-size:1.3em;letter-spacing:1px}
+  .search-box{width:100%}
+  .total-info .big{font-size:1.3em}
+  .skull-art{font-size:0.35em}
+  .stats-banner{gap:8px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="matrix-bg"></canvas>
+
+<div class="header-wrap">
+<div class="skull-art" id="asciiArt">
+    _____  _   _ ____  ____   ___ ___ ____
+   / _  / | \ | |  _ \|  _ \ / _ \_ _|  _ \
+  / /_| | |  \| | | | | |_) | | | | || | | |
+ / ___  | | |\  | |_| |  _ &lt;| |_| | || |_| |
+/_/   |_| |_| \_|____/|_| \_\\___/___|____/
+     ____  _____  __     _____ ____  ____  _____
+    |  _ \| ____| \ \   / / __| __ )/ ___|| ____|
+    | |_) |  _|    \ \ / /|  _||  _ \\___ \|  _|
+    |  _ &lt;| |___    \ V / | |__| |_) |__) | |___
+    |_| \_\_____|    \_/  |____|____/____/|_____|
+</div>
+<div class="header-tag">[ SYSTEM://INITIALIZED ]</div>
+<h1><span class="red">&lt;</span> ANDROID <span class="cyan">RE</span> TRACKER <span class="red">/&gt;</span></h1>
+<p class="sub"><span class="prompt">root@kali:~$</span> tracking progress across all 6 frameworks | auto-saves to browser_</p>
+<div class="stats-banner">
+  <div class="stat-item">FRAMEWORKS: <span>6</span></div>
+  <div class="stat-item">STATUS: <span>ACTIVE</span></div>
+  <div class="stat-item">MODE: <span>OFFENSIVE</span></div>
+  <div class="stat-item" id="totalLessons">TARGETS: <span>0</span></div>
+</div>
+</div>
+
+<div class="toolbar">
+<input type="text" class="search-box" id="search" placeholder="$ grep -r 'topic'..." oninput="filterItems()">
+<button class="btn-save" onclick="saveData()">[ SAVE ]</button>
+<button class="btn-export" onclick="exportData()">[ EXPORT ]</button>
+<button onclick="importData()">[ IMPORT ]</button>
+<button class="btn-reset" onclick="resetData()">[ PURGE ]</button>
+<a href="#" onclick="expandAll(event)">EXPAND *</a>
+<a href="#" onclick="collapseAll(event)">COLLAPSE *</a>
+<span class="save-msg" id="saveMsg">[+] Data Saved!</span>
+</div>
+
+<div class="box">
+<div class="total-bar">
+<h2>&gt;_ OVERALL PROGRESS</h2>
+<div class="total-info">
+<span class="big" id="totalPct">0%</span>
+<span id="totalCount">0 / 0 targets compromised</span>
+<span id="lastSave" style="margin-left:auto;font-size:.72em;color:var(--t3)"></span>
+</div>
+<div class="pbar"><div class="pfill" id="totalFill" style="width:0%"></div></div>
+</div>
+<div class="filter-bar">
+<button class="active" onclick="setFilter('all',this)">[ALL]</button>
+<button onclick="setFilter('todo',this)">[PENDING]</button>
+<button onclick="setFilter('done',this)">[PWNED]</button>
+</div>
+<div id="content"></div>
+</div>
+
+<div class="terminal-footer">
+  <p>&gt; SESSION_ACTIVE | ENCRYPTED_CHANNEL | NO_LOGS</p>
+  <p style="margin-top:5px">[ ANDROID RE TRACKER v2.0 // H4CK3R EDITION ]<span class="cursor"></span></p>
+</div>
+
+<p class="last-save" id="footer"></p>
+
+<script>
+// Matrix Rain Background
+const canvas=document.getElementById('matrix-bg');
+const ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+const chars='01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+const fontSize=14;
+const columns=Math.floor(canvas.width/fontSize);
+const drops=Array(columns).fill(1);
+
+function drawMatrix(){
+  ctx.fillStyle='rgba(5,10,14,0.05)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#00ff4130';
+  ctx.font=fontSize+'px monospace';
+  for(let i=0;i<drops.length;i++){
+    const text=chars[Math.floor(Math.random()*chars.length)];
+    ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+    if(drops[i]*fontSize>canvas.height&&Math.random()>0.975)drops[i]=0;
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix,50);
+window.addEventListener('resize',()=>{canvas.width=innerWidth;canvas.height=innerHeight});
+
+const DATA=[
+{id:"native",name:"Android Native",icon:"AN",color:"#10b981,#059669",desc:"Java/Kotlin | Dalvik (.dex) | Smali | JNI | ARM",sections:[
+{name:"S01 - Installation & Setup",badge:"13 lessons | 3h 50m",tools:["jadx","apktool","Frida","ADB","Ghidra","Android Studio","objection"],items:[
+"Setup - Theory","Installation (System & Android Studio)","Emulator - Installation","Emulator - Usage (Secret Features)","Androidx86 VM Setup","Developer Options","Developer Options - Secrets (Game Hacking)","Developer Options - BLE Hacking","BLE - Furby App Hacking","Android Debug Bridge - Theory","ADB HandsOn (White-Belt)","Scrcpy for Android 14","Rooted device configuration"]},
+{name:"S02 - App Structure",badge:"29 lessons | 9h 32m",tools:["apktool","jadx","readelf"],items:[
+"Filestructure of an APK","Dalvik / Dex","Classes.dex","Decompiling - Preparation","Decompiling - HandsOn","AndroidManifest.xml","App Permissions","Activities","Activities - Hacking","Activity - Bypassing Login","Intents","Intents - Examples","DeepLinks Theory","DeepLinks Examples","BroadcastReceiver","BroadcastReceiver - Hacking (Alarm App)","BroadcastReceiver - Hacking via own App","Services","ContentProvider","ContentProvider - SQL Injection","ContentProvider - Database Attacks (SQLi)","ContentProvider - PathTraversal Attack","Application Signing","Application Signing - Deep Dive","BlueBox Master Key Vulnerability","Resources and compiled resource tables","Assets folder and bundled files","Native .so libraries inside APK","Code signing certificates"]},
+{name:"S03 - Reverse Engineering",badge:"12 lessons | 3h 30m",tools:["jadx","Ghidra","IDA Pro","dex2jar"],items:[
+"Dex2Jar","Jadx-Gui","Jadx-Gui HandsOn","Secret Super Weapon","Reversing Apps","Creating a CallGraph (CG)","Creating a FlowGraph (FG)","Challenge - Intro","Challenge - Hacking Activities","Challenge - Hacking Content Provider","Challenge - Hacking BroadCast Receiver","Challenge - Password (Decryption)"]},
+{name:"S04 - Smali Deep Dive",badge:"42 lessons | 14h 29m",tools:["apktool","smali/baksmali","jadx"],items:[
+"Smali Recap","Smali - Introduction","Smali - Patching","Challenge - Solution","Registers","Types","P0 - Register","Dalvik Opcodes","Smali File Structure","Practice - Smali","Practice - Solution","Orange Belt - Intro","Orange Belt - Solution","IF - Intro","IF / ELSE / GOTO","IF / ELSE / GOTO - Code Analysis","IF / ELSE / GOTO - Blocks","IF / ELSE / GOTO - Practice","Smali Patching - Flipping the logic","Smali Patching - Deleting Code","Smali Patching - Jump Instructions","Green Belt Challenge (Rooting Detection)","Rooting Detection bypass - Solution","Rooting Detection - Solution2 (Bonus)","Smali - Objects and Methods","Smali - Static Methods","Smali - Hello World","Printing out secrets (System.out in Smali)","Patching XOR encryption","Recap Challenge - Intro","Recap Challenge - Part 1","Recap Challenge - Part 2","Recap Challenge - Part 3","Recap Challenge - Solution","Blue Belt Challenge (Intro)","Blue Belt Challenge (Hint)","Blue Belt Challenge (Solution)","Black Belt Challenge","Debugging Android Applications","SMALI Debugging on Steroids","Rebuilding patched APK","Resigning rebuilt APK"]},
+{name:"S05 - Man in the Middle",badge:"13 lessons | 4h 58m",tools:["Burp Suite","mitmproxy","Frida","objection"],items:[
+"ARP Protocol","MitM Setup","Intercepting Theory","BurpSuite Setup","Reset the Setup","HTTPS Technical View","Installing a Certificate","MitM Setup VM","Certificate Pinning Theory","Certificate Pinning OpenSSL (Bonus)","Certificate Pinning - Patching Fingerprint","Certificate Pinning - Patching Certificate","Certificate Pinning - Objection Bypass"]},
+{name:"S06 - FRIDA",badge:"33 lessons | 10h 45m",tools:["Frida","objection","Xposed","LSPosed","r2frida"],items:[
+"FRIDA Introduction","FRIDA Install","Hooking Theory","Dize Game HandsOn","Dize App Analysis","Dize App - Observing Parameters","Dize App - Modifying Parameters","Function Overloading","Timing (Hooking)","Challenge - Rooting Detection bypass","Challenge - Rooting Detection solution","Actively calling a method","Working with Instances","HandsOn","HandsOn - Solution","Instance as a parameter","Existing instance as a parameter","Challenge - Multiple player shots","Challenge - Multiple player shots solution","Constructor hooking","Manipulating UI Thread","Writing a trainer","Hooking NDK","NDK hooking - Easy Way","NDK hooking - Hard way","NDK hooking - timing","Manipulating NDK methods (overwriting)","Reversing C function in Ghidra (Bonus)","Hooking C function in Frida (Bonus)","FRIDA without ROOT (GADGET)","FRIDA Standalone","Xposed/LSPosed persistent hooks","Red Belt Challenge (FINAL)"]},
+{name:"S07 - CTF Series",badge:"6 lessons | 2h 18m",tools:[],items:[
+"CTF Series Introduction","CTF - LicenseValidator (ARM - Ghidra) Part 1","CTF - LicenseValidator Solution","CTF - Androgoat (Root/Emulator/Binary Patching)","CTF - Androgoat (Reversing)","CTF - Androgoat (XSS/SQLi/WebView)"]},
+{name:"S08 - Reference Material",badge:"1 lesson | 1m",tools:[],items:[
+"CheatSheet","Frida script templates","Smali instruction cheat sheet","Burp Suite setup guide"]},
+{name:"S09 - Advanced Obfuscation & Packers",badge:"NEW | ~8h",isNew:true,tools:["APKiD","Frida","Ghidra","radare2"],items:[
+"Identifying packers with APKiD","DexGuard vs ProGuard vs R8 comparison","DexGuard string encryption bypass","DexGuard class encryption hooking","DexGuard asset/resource encryption bypass","DexProtector native protection analysis","Bangcle/SecShell unpacking","Qihoo 360 Jiagu unpacking via memory dump","Tencent Legu protection bypass","Generic unpacking via Frida dex dump","frida-dexdump automated DEX extraction","FART (ART-based) full unpacker","Bypassing custom in-house packers","Control flow obfuscation (opaque predicates)","String encryption automated decryption","Dead code injection detection","Multi-layer identifier renaming","Class hierarchy flattening detection"]},
+{name:"S10 - Anti-Debug & Anti-Tamper",badge:"NEW | ~6h",isNew:true,tools:["Frida","Ghidra","strace","IDA Pro"],items:[
+"ptrace anti-debugging (PTRACE_TRACEME)","TracerPid detection bypass","proc/self/maps integrity bypass","Timing-based anti-debug bypass","Signal-based anti-debug (SIGTRAP)","Debug.isDebuggerConnected() bypass","debuggable flag detection/patching","Anti-Frida detection bypass (port/library/pipe)","Frida maps scanning bypass","Anti-Xposed detection bypass","Anti-Magisk (MagiskHide/Zygisk/Shamiko)","SafetyNet / Play Integrity bypass","APK signature verification bypass (v1-v4)","DEX checksum/CRC32 integrity bypass","Runtime code integrity (self-hashing)","Anti-hook trampoline detection","Anti-emulator fingerprinting bypass","Multi-layered protection chains"]},
+{name:"S11 - Advanced Native & ARM Assembly",badge:"NEW | ~10h",isNew:true,tools:["Ghidra","IDA Pro","radare2","Frida","Capstone","Unicorn"],items:[
+"ARM64 (AArch64) instruction set","ARM32 (Thumb/ARM) for legacy apps","Registers and calling conventions (AAPCS64)","Stack frame analysis","JNI function signature RE","JNI_OnLoad dynamic registration hooking","RegisterNatives interception","Stripped .so symbol recovery","OLLVM detection and bypass","OLLVM control flow flattening reversal","OLLVM bogus control flow cleanup","OLLVM string encryption recovery","Custom .so protections (init_array tricks)","Anti-disassembly techniques","Ghidra scripting (Java/Python)","IDA Pro IDAPython scripting","Emulating ARM with Unicorn Engine","Capstone disassembly framework","Keystone assembler for patches","ELF section manipulation","PLT/GOT hooking","Inline hooking native functions"]},
+{name:"S12 - Kernel, OS Security & Automation",badge:"NEW | ~8h",isNew:true,tools:["Drozer","MobSF","androguard","QARK","Frida"],items:[
+"SELinux enforcement analysis","seccomp-bpf sandbox analysis","TEE / TrustZone interaction","Android Keystore hardware-backed keys","Biometric authentication bypass","StrongBox Keymaster analysis","Drozer automated component testing","MobSF automated scanning pipeline","androguard programmatic analysis","QARK automated vulnerability discovery","Custom Frida automation frameworks","Building automated RE pipeline (CI/CD)","Pentesting report generation","Magisk module development","Zygisk module development","Real-world bug bounty methodology","Responsible disclosure workflow"]}
+]},
+{id:"flutter",name:"Flutter",icon:"FL",color:"#06b6d4,#0284c7",desc:"Dart | AOT Snapshot (ARM64) | BoringSSL",sections:[
+{name:"S01 - Installation & Setup",badge:"3h 50m",tools:["reFlutter","jadx","Ghidra","ADB","Frida","objection","blutter"],items:[
+"Rooted device config for Flutter","Flutter SDK internals overview","blutter compilation and setup","Flutter engine version & snapshot compatibility","reFlutter framework installation","Dart SDK setup for analysis"]},
+{name:"S02 - Flutter App Structure",badge:"9h 32m",tools:["apktool","readelf","nm"],items:[
+"libapp.so vs libflutter.so difference","Dart snapshot types (core, app-aot, app-jit)","AOT vs JIT compilation","Flutter asset bundling (flutter_assets)","ELF binary structure","Dart isolate heap memory layout","Split APK handling for Flutter"]},
+{name:"S03 - Static Analysis",badge:"3h 30m",tools:["blutter","Ghidra","IDA Pro","reFlutter"],items:[
+"Dart AOT snapshot disassembly workflow","Class/method name recovery with blutter","String table extraction from object pool","Function renaming in Ghidra","Snapshot binary patching (hex editor)","Cross-referencing blutter with Ghidra"]},
+{name:"S04 - Dart AOT Snapshot Deep Dive",badge:"14h 29m",tools:["blutter","darter","Dart VM Source"],items:[
+"Dart snapshot cluster serialization","Object pool structure and content","StubCode entries & dispatch tables","Dart type system at runtime","Heap walking for class instances","Field/method offset calculation","Null safety in snapshot binary"]},
+{name:"S05 - MitM Flutter SSL Bypass",badge:"4h 58m",tools:["reFlutter","Burp Suite","mitmproxy","ProxyDroid"],items:[
+"Why standard Android bypasses fail on Flutter","BoringSSL function hooking (libflutter.so)","ssl_crypto_x509_session_verify_cert_chain hook","reFlutter traffic redirection patch","CA bypass at BoringSSL level","HTTP/2 traffic interception","gRPC interception and protobuf decoding","Hooking Dio and http packages","ProxyDroid forcing traffic through proxy"]},
+{name:"S06 - Frida for Flutter",badge:"10h 45m",tools:["Frida","fridart","flutter-frida","objection"],items:[
+"Hooking Dart methods at runtime","Enumerating libflutter.so symbols","Extracting BoringSSL session keys","Memory scanning for Dart instances","Root detection bypass in Dart","Tampering premium feature flags","Dart VM service protocol","Hooking Dart FFI calls"]},
+{name:"S07 - CTF Challenges",badge:"2h 18m",tools:[],items:[
+"Hidden flag in snapshot binary","License check bypass (Dart native)","Decrypt local encrypted data","MitM challenge app","Patch AOT binary and repackage"]},
+{name:"S08 - Reference Material",badge:"1m",tools:[],items:[
+"Frida scripts for Flutter","Ghidra automation templates","blutter output cheat sheet","BoringSSL hook reference"]},
+{name:"S09 - Advanced Snapshot & Version Handling",badge:"NEW | ~8h",isNew:true,tools:["blutter","Ghidra","Dart SDK"],items:[
+"Flutter version fingerprinting","Dart SDK version from snapshot header","Snapshot format changes (Flutter 2.x/3.x/3.19+)","Building version-matched blutter","Snapshot format v2 vs v3 differences","Custom blutter parsers for Ghidra","Generating Ghidra .gdt type files","Impeller rendering engine impact","Skia vs Impeller: libflutter.so exports","Flutter Web (dart2js) analysis","Flutter Desktop binary analysis","Split debug info and DWARF symbols","Dart isolate message passing analysis","Custom Dart type reconstruction","Automated class hierarchy recovery","Snapshot binary diffing between versions"]},
+{name:"S10 - Flutter Anti-RE & Advanced Bypass",badge:"NEW | ~6h",isNew:true,tools:["Frida","Ghidra","reFlutter"],items:[
+"--obfuscate flag reversal","--split-debug-info recovery","Tree-shaking analysis","Dart code minification patterns","Anti-Frida detection bypass (Flutter)","flutter_jailbreak_detection bypass","safe_device package bypass","freeRASP bypass","flutter_secure_storage bypass","SharedPrefs vs secure_storage extraction","Hive database extraction/decryption","sqflite database access/decryption","Firebase google-services.json secrets","MethodChannel/EventChannel hooking","Platform channel serialization","Custom Dart VM engine builds"]}
+]},
+{id:"react",name:"React Native",icon:"RN",color:"#3b82f6,#1d4ed8",desc:"JS/TS | Hermes (.hbc) | JSI | TurboModules",sections:[
+{name:"S01 - Installation & Setup",badge:"3h 50m",tools:["jadx","apktool","Frida","ADB","Burp Suite","Node.js","r2frida","objection"],items:[
+"Hermes vs JavaScriptCore comparison","React Native dev tools overview","r2frida installation/configuration","Node.js toolchain setup"]},
+{name:"S02 - RN App Structure",badge:"9h 32m",tools:["apktool","hbcdump","hermes-dec"],items:[
+"index.android.bundle location/format","Hermes Bytecode (.hbc) format","Metro bundler output structure","Native modules bridge architecture","JSI internals and call dispatch","Linked native .so from modules"]},
+{name:"S03 - Static Analysis",badge:"3h 30m",tools:["hermes-dec","hbcdump","jadx","react-native-decompiler"],items:[
+"JS bundle deobfuscation workflow","Hermes bytecode to JS reconstruction","Secret and API key extraction","Source map reconstruction"]},
+{name:"S04 - Hermes Bytecode Deep Dive",badge:"14h 29m",tools:["hbcdump","hermes CLI","hbc-decompiler"],items:[
+"HBC header and section layout","Complete opcode table","Function header structure","String table extraction","Patching bytecode and repacking","JSC fallback path analysis","Pre-compilation obfuscation patterns"]},
+{name:"S05 - MitM SSL Bypass",badge:"4h 58m",tools:["Burp Suite","mitmproxy","Frida","objection"],items:[
+"OkHttp certificate pinning bypass","Custom TrustManager replacement","Network Security Config patching","Axios and fetch interception","WebSocket and GraphQL interception"]},
+{name:"S06 - Frida for React Native",badge:"10h 45m",tools:["Frida","r2frida","frida-compile","objection"],items:[
+"Hooking JS via Hermes engine","Hermes runtime and JSI hooks","Native module call interception","AsyncStorage data dumping","SecureStore bypass","Root detection bypass","API response tampering","OkHttp/Retrofit Java hooking"]},
+{name:"S07 - CTF Challenges",badge:"2h 18m",tools:[],items:[
+"Hidden key in Hermes bundle","In-app purchase bypass","AsyncStorage encryption decryption","MitM challenge","Patch bytecode and repack APK"]},
+{name:"S08 - Reference Material",badge:"1m",tools:[],items:["Frida scripts for RN","Hermes opcode cheat sheet","Bundle patch templates"]},
+{name:"S09 - New Architecture (Fabric/TurboModules/JSI)",badge:"NEW | ~10h",isNew:true,tools:["Frida","Ghidra","jadx","hermes-dec"],items:[
+"Old Bridge vs Bridgeless comparison","Fabric renderer C++ Shadow Tree","TurboModules direct JSI binding","JSI direct C++ to JS communication","Codegen auto-generated bindings","TurboModule .so RE","Hooking TurboModule C++ with Frida","Fabric component tree memory layout","Concurrent rendering hooking","New Architecture event interception","Bridgeless interception points","libreactnativejni.so analysis","libfabricjni.so internals","libturbomodulejsijni.so hooking"]},
+{name:"S10 - Advanced JS Deobfuscation",badge:"NEW | ~8h",isNew:true,tools:["Babel","AST Explorer","synchrony","jscodeshift"],items:[
+"AST fundamentals for JS analysis","Babel parser and transform API","Custom Babel plugins for deobfuscation","jscodeshift codemods","String array rotation decoding","Control flow flattening reversal","Dead code elimination","Opaque predicate removal","Variable rename recovery","Webpack module ID mapping","Metro require() resolution","Source map generation","Hermes vs raw JS: choosing path","Automated deobfuscation pipeline"]},
+{name:"S11 - Native Module & C++ TurboModule RE",badge:"NEW | ~6h",isNew:true,tools:["Ghidra","jadx","Frida"],items:[
+"ReactContextBaseJavaModule analysis","@ReactMethod discovery in jadx","Promise-based module interception","C++ TurboModule .so disassembly","HostObject/TurboModule interface recovery","JSI HostFunction hooking","Native event emitter interception","Camera/Geolocation/FS module RE","Custom native module vulns","Maps/Push Notifications hooks"]},
+{name:"S12 - State Management & Storage RE",badge:"NEW | ~6h",isNew:true,tools:["Frida","ADB","objection"],items:[
+"Redux store state dumping","MobX observable interception","Zustand store hooking","React Query cache extraction","AsyncStorage complete dump","MMKV storage extraction/decryption","Realm database extraction","WatermelonDB SQLite extraction","Expo SecureStore bypass","react-native-keychain extraction","Encrypted SharedPreferences via bridge","expo-sqlite analysis"]},
+{name:"S13 - Expo, CodePush & OTA Updates",badge:"NEW | ~5h",isNew:true,tools:["apktool","hermes-dec","Burp Suite","Frida"],items:[
+"Expo managed workflow APK structure","Expo Go vs standalone build","EAS Build artifact structure","Expo config plugins impact","expo-updates OTA interception","CodePush update interception","CodePush bundle download hooking","OTA signature verification bypass","Downgrade attack via OTA","React Navigation deeplink exploitation","Expo Router deeplink analysis","expo-auth-session token interception","Expo Notifications token extraction"]}
+]},
+{id:"xamarin",name:"Xamarin",icon:"XA",color:"#8b5cf6,#6d28d9",desc:"C# / .NET | CIL (.dll) | Mono Runtime | .NET MAUI",sections:[
+{name:"S01 - Installation & Setup",badge:"3h 50m",tools:["dnSpy","jadx","apktool","Frida","ADB","dotPeek","objection"],items:[
+"Mono runtime for Android overview","Xamarin.Android vs .NET MAUI differences","IL decompiler tool setup","Rooted device configuration"]},
+{name:"S02 - Xamarin App Structure",badge:"9h 32m",tools:["apktool","jadx","7-zip"],items:[
+"assemblies/ folder and .dll files","Mono.Android.dll Java binding","libmonodroid.so and libxamarin-app.so","Linked vs non-linked build output","Embedded/compressed assembly storage","AndroidManifest.xml for Xamarin"]},
+{name:"S03 - Static Analysis",badge:"3h 30m",tools:["dnSpy","ILSpy","dotPeek","AvaloniaILSpy","Mono.Cecil"],items:[
+"Extracting .dll from APK","Decompiling CIL to C# source","Class hierarchy and method recovery","Dotfuscator pattern recognition","Control flow deobfuscation"]},
+{name:"S04 - CIL Bytecode Deep Dive",badge:"14h 29m",tools:["dnSpy","ILSpy","Mono.Cecil","ildasm","ilasm"],items:[
+"CIL opcode instruction set","NET metadata table format","Method body IL patching","Strong name signature bypass","Generic type reconstruction","P/Invoke declarations and native interop"]},
+{name:"S05 - MitM SSL Bypass",badge:"4h 58m",tools:["Burp Suite","mitmproxy","Frida","dnSpy"],items:[
+"ServicePointManager callback hook","HttpClient/ModernHttpClient bypass","Certificate pinning in IL code","OkHttp binding library bypass","Network Security Config patching","Patch .dll and repack APK"]},
+{name:"S06 - Frida via Mono API",badge:"10h 45m",tools:["Frida","frida-mono","objection","r2frida"],items:[
+"Hooking C# via Mono runtime API","mono_class_get_method_from_name","NET exception interception","Dumping decrypted assemblies","License/subscription bypass","P/Invoke function hooking","Mono JIT patching at runtime"]},
+{name:"S07 - CTF Challenges",badge:"2h 18m",tools:[],items:["Hidden key in .dll assembly","License check bypass","SQLite/SharedPrefs decryption","Patch IL and repack APK"]},
+{name:"S08 - Reference Material",badge:"1m",tools:[],items:["Mono Frida scripts","CIL opcode cheat sheet","Assembly patching templates"]},
+{name:"S09 - AOT & Mixed-Mode Analysis",badge:"NEW | ~8h",isNew:true,tools:["Ghidra","IDA Pro","Frida","readelf"],items:[
+"Xamarin AOT: .dll to native .so","libxamarin-app.so AOT method table","Mixed-mode (AOT+JIT) execution","Identifying AOT methods in Ghidra","Startup tracing profile analysis","AOT method offset recovery","Mono AOT trampolines","Hooking AOT C# via native hooks","Profile-guided AOT analysis","Hybrid patching strategy","Interpreter mode fallback","R2R format for .NET 6+ apps"]},
+{name:"S10 - .NET MAUI Deep Dive",badge:"NEW | ~6h",isNew:true,tools:["dnSpy","ILSpy","jadx","Frida"],items:[
+"MAUI vs Xamarin.Forms differences","Handler vs Renderer pattern","Microsoft.Maui.dll analysis","MauiProgram.cs builder RE","DI container analysis","MAUI Essentials: SecureStorage/Preferences","MAUI Blazor Hybrid: WebView+Razor","Single Project platform-specific code","MAUI Community Toolkit RE",".NET 7/8 trimming analysis","NativeAOT for Android"]},
+{name:"S11 - Assembly Encryption & Packing Bypass",badge:"NEW | ~6h",isNew:true,tools:["Frida","Mono.Cecil","dnSpy","de4dot"],items:[
+"Assembly bundle format (assemblies.blob)","Compressed assembly extraction","XOR/AES assembly bypass via memory dump","Mono.Cecil assembly loading hook","Assembly.Load interception","Dotfuscator advanced bypass","Crypto Obfuscator bypass","ConfuserEx protection bypass","de4dot automated deobfuscation","Custom obfuscator identification","Anti-decompilation CIL tricks","Assembly re-signing after patching"]},
+{name:"S12 - Advanced Mono Internals",badge:"NEW | ~6h",isNew:true,tools:["Frida","Ghidra","r2frida"],items:[
+"Mono runtime API complete reference","mono_image_open_from_data hooking","mono_jit_info_table enumeration","Mono GC analysis for object tracking","mono_class_enum_all enumeration","Mono profiler API callbacks","Mono debugger agent protocol","Thread-local storage analysis","Mono AppDomain isolation","libmonosgen-2.0.so internals","Custom Mono runtime builds"]},
+{name:"S13 - Automated .NET Analysis & Data Layer",badge:"NEW | ~5h",isNew:true,tools:["Mono.Cecil","dnSpy","Frida","ADB"],items:[
+"Custom Cecil vulnerability scanning","IL pattern matching for insecure code","Entity Framework Core extraction","SQLite-net database analysis","Akavache cache extraction","Xamarin.Essentials SecureStorage bypass","gRPC/SignalR interception","HttpClientHandler pipeline analysis","Polly retry/circuit-breaker bypass","NuGet vulnerability assessment","Refit/RestSharp client RE","Automated assembly comparison"]}
+]},
+{id:"ionic",name:"Ionic",icon:"IO",color:"#ec4899,#be185d",desc:"JS/TS | Capacitor | Angular/React/Vue | WebView | WASM",sections:[
+{name:"S01 - Installation & Setup",badge:"3h 50m",tools:["jadx","apktool","Frida","ADB","Burp Suite","Chrome DevTools","objection"],items:[
+"Capacitor vs Cordova differences","WebView remote debugging setup","Ionic CLI overview","Chrome DevTools remote protocol"]},
+{name:"S02 - Ionic App Structure",badge:"9h 32m",tools:["apktool","jadx"],items:[
+"assets/public/ folder structure","index.html entry and script loading","capacitor.js bridge script","Angular/React/Vue lazy-loaded chunks","Webpack/Rollup/Vite output patterns","Native plugin .so libraries"]},
+{name:"S03 - Static Analysis",badge:"3h 30m",tools:["apktool","js-beautify","prettier","VS Code"],items:[
+"Extracting/beautifying JS bundle","API key and secret discovery","Auth logic reconstruction","Source map reconstruction","javascript-obfuscator pattern recognition"]},
+{name:"S04 - JS Bundle & Capacitor Deep Dive",badge:"14h 29m",tools:["synchrony","AST Explorer","Babel","acorn"],items:[
+"Webpack module ID mapping","AST-level deobfuscation","String array rotation bypass","Control flow flattening reversal","Patching JS and repacking APK"]},
+{name:"S05 - MitM SSL Bypass",badge:"4h 58m",tools:["Burp Suite","mitmproxy","Frida","objection"],items:[
+"WebView SSL verification override","OkHttp bypass in Capacitor layer","Axios and fetch interception","Capacitor HTTP plugin hooking","WebSocket interception"]},
+{name:"S06 - Frida & Chrome DevTools",badge:"10h 45m",tools:["Frida","objection","Chrome DevTools","r2frida"],items:[
+"Chrome DevTools WebView attachment","Live JS function patching","Capacitor Java bridge hooking","localStorage/IndexedDB dump","Root detection bypass","Premium feature flag tampering"]},
+{name:"S07 - CTF Challenges",badge:"2h 18m",tools:[],items:["Hidden key in JS bundle","Subscription bypass via JS patching","Ionic Secure Storage decryption","MitM challenge"]},
+{name:"S08 - Reference Material",badge:"1m",tools:[],items:["Frida scripts for Ionic/Capacitor","Webpack chunk mapping guide","JS patch workflow templates"]},
+{name:"S09 - Advanced WebView Exploitation",badge:"NEW | ~8h",isNew:true,tools:["Chrome DevTools","Frida","Burp Suite","jadx"],items:[
+"WebView security model deep dive","addJavascriptInterface exploitation","setAllowFileAccess exploitation","setAllowUniversalAccessFromFileURLs","Mixed content exploitation","WebView JS injection via intent","shouldOverrideUrlLoading bypass","WebView cookie stealing","CORS in WebView","postMessage exploitation","WebView to native bridge injection","DeepLink to WebView XSS chain","Custom URL scheme hijacking","WebView debug mode exploitation","Chrome DevTools Protocol automation"]},
+{name:"S10 - Advanced JS Deobfuscation",badge:"NEW | ~8h",isNew:true,tools:["Babel","jscodeshift","synchrony","esprima"],items:[
+"Complete AST pipeline setup","Custom Babel visitor plugins","Constant folding/propagation","Dead code elimination","String decryption function inlining","Hex/Unicode escape decoding","Computed property resolution","Proxy function inlining","Array destructuring de-obfuscation","Scope analysis for rename recovery","Webpack 4 vs 5 module formats","Rollup/Vite bundle analysis","Tree-shaking artifact analysis","Source map from inline comments"]},
+{name:"S11 - Capacitor Plugin Deep RE",badge:"NEW | ~6h",isNew:true,tools:["jadx","Frida","apktool"],items:[
+"Capacitor Plugin class hierarchy","@PluginMethod annotation discovery","PluginCall/JSObject message format","Camera plugin data interception","Filesystem plugin file hooking","Geolocation plugin data tampering","PushNotifications token extraction","LocalNotifications spoofing","Biometric/Fingerprint bypass","App plugin: URL/state hooks","Community plugins vulnerability audit","Bridge message queue analysis"]},
+{name:"S12 - Storage & Crypto Analysis",badge:"NEW | ~5h",isNew:true,tools:["Chrome DevTools","Frida","ADB"],items:[
+"localStorage complete dump","IndexedDB extraction/parsing","Web SQL database access","Capacitor Preferences extraction","Ionic Secure Storage internals","SQLCipher database analysis","Web Crypto API hooking (SubtleCrypto)","CryptoJS library interception","JWT extraction and manipulation","OAuth2/OIDC token analysis","Service Worker cache extraction","Cache API response dumping"]},
+{name:"S13 - Angular/React/Vue Specific RE",badge:"NEW | ~6h",isNew:true,tools:["Chrome DevTools"],items:[
+"Angular: DI token analysis","Angular: lazy module route mapping","Angular: guard/interceptor identification","Angular: HttpInterceptor chain","Angular: RxJS Observable hooking","React: component tree recovery","React: useState/useEffect extraction","React: Context provider interception","Vue: Vuex/Pinia state dumping","Vue: lifecycle hook interception","Vue: router guard bypass","Framework-agnostic: form validation bypass"]},
+{name:"S14 - WebAssembly (WASM) Analysis",badge:"NEW | ~5h",isNew:true,tools:["wasm2wat","wasm-decompile","Ghidra","Chrome DevTools"],items:[
+"WASM module detection in Ionic","wasm2wat binary to text","wasm-decompile pseudo-code","Ghidra WASM loader","WASM memory model analysis","Function import/export tables","Crypto in WASM bypass","License checks in WASM","WASM debugging in DevTools","Emscripten C/C++ WASM analysis","AssemblyScript/Rust WASM patterns"]},
+{name:"S15 - Enterprise Security & Live Updates",badge:"NEW | ~5h",isNew:true,tools:["Frida","Burp Suite","apktool"],items:[
+"Identity Vault bypass","Ionic Secure Storage enterprise RE","Auth Connect OAuth/OIDC interception","Appflow Live Update OTA interception","Appflow bundle signature bypass","Appflow downgrade attack","CSP bypass in WebView","Subresource Integrity bypass","Enterprise features enumeration","PWA mode analysis","Service Worker manipulation"]}
+]},
+{id:"cordova",name:"Apache Cordova",icon:"CO",color:"#f59e0b,#d97706",desc:"JavaScript | cordova.exec() | CordovaPlugin | WebView",sections:[
+{name:"S01 - Installation & Setup",badge:"3h 50m",tools:["jadx","apktool","Frida","ADB","Burp Suite","Chrome DevTools","objection"],items:[
+"Cordova CLI and project structure","Plugin architecture and lifecycle","WebView remote debugging flag","Device setup for Cordova analysis"]},
+{name:"S02 - Cordova App Structure",badge:"9h 32m",tools:["apktool","jadx"],items:[
+"assets/www/ complete web application","cordova.js bridge script","cordova_plugins.js registry","config.xml access whitelist rules","www/plugins/ per-plugin JS interface","Native .so loaded by Java plugins"]},
+{name:"S03 - Static Analysis",badge:"3h 30m",tools:["apktool","js-beautify","jadx","ripgrep"],items:[
+"Plain JS - no decompilation needed","API key and auth token discovery","Java plugin analysis with jadx","Smali-level plugin patching","config.xml policy bypass"]},
+{name:"S04 - JS Bridge & Plugin Deep Dive",badge:"14h 29m",tools:["Chrome DevTools","jadx","Frida"],items:[
+"Full cordova.exec() call flow","CordovaPlugin.execute() internals","PluginResult protocol/status codes","Hooking cordova.exec() in JS","RE proprietary custom plugins","Patching JS and Java, repacking"]},
+{name:"S05 - MitM SSL Bypass",badge:"4h 58m",tools:["Burp Suite","mitmproxy","Frida","objection"],items:[
+"WebView SSL callback override","cordova-plugin-advanced-http bypass","OkHttp/HttpURLConnection hooks","TrustManager replacement via Frida","XMLHttpRequest/fetch interception"]},
+{name:"S06 - Frida & Chrome DevTools",badge:"10h 45m",tools:["Frida","objection","Chrome DevTools","r2frida"],items:[
+"Chrome DevTools WebView debugging","Hooking cordova.exec() JS layer","Hooking CordovaPlugin Java layer","Dumping localStorage/WebSQL","Root detection bypass","IAP plugin tampering"]},
+{name:"S07 - CTF Challenges",badge:"2h 18m",tools:[],items:["Hidden key in assets/www/","IAP verification bypass","SQLite/localStorage decryption","Full end-to-end RE challenge"]},
+{name:"S08 - Reference Material",badge:"1m",tools:[],items:["Frida scripts for Cordova","Bridge protocol cheat sheet","Smali templates for CordovaPlugin"]},
+{name:"S09 - Advanced Plugin RE",badge:"NEW | ~8h",isNew:true,tools:["jadx","Frida","apktool","smali"],items:[
+"CordovaPlugin class hierarchy deep analysis","Plugin lifecycle methods","cordova-plugin-camera interception","cordova-plugin-file exploitation","cordova-plugin-file-transfer interception","cordova-plugin-geolocation spoofing","cordova-plugin-contacts extraction","cordova-plugin-device fingerprint manipulation","cordova-plugin-media capture interception","cordova-plugin-network-information tampering","Custom enterprise plugins RE","Plugin Java to Smali patching","Plugin callback chain interception"]},
+{name:"S10 - WebView Security & Exploitation",badge:"NEW | ~8h",isNew:true,tools:["Chrome DevTools","Frida","Burp Suite"],items:[
+"WebView security model deep dive","WebSettings analysis","addJavascriptInterface exploitation","setAllowFileAccessFromFileURLs","setAllowUniversalAccessFromFileURLs","Mixed content attacks","shouldOverrideUrlLoading bypass","onReceivedSslError override","Cross-origin WebView attacks","postMessage exploitation","Intent scheme URL handling","Custom URL scheme hijacking","WebView JS to Java bridge injection","WebView cache poisoning"]},
+{name:"S11 - Advanced JS Deobfuscation",badge:"NEW | ~6h",isNew:true,tools:["Babel","synchrony","AST Explorer","prettier"],items:[
+"javascript-obfuscator detection/reversal","String array rotation decoding","Control flow flattening reversal","Dead code injection removal","Hex/Unicode string decoding","Self-defending code bypass","Debug protection bypass","Domain lock bypass","Console output disable bypass","Custom obfuscator identification","AST automated pipeline","Cordova-specific JS patterns"]},
+{name:"S12 - Data Storage & Crypto Analysis",badge:"NEW | ~6h",isNew:true,tools:["ADB","Chrome DevTools","Frida","sqlite3"],items:[
+"localStorage extraction via DevTools","WebSQL database extraction","IndexedDB data extraction","cordova-plugin-secure-storage bypass","cordova-plugin-secure-key-store bypass","Android KeyStore integration analysis","SQLCipher analysis","PouchDB/CouchDB extraction","LokiJS memory dump","Web Crypto API hooking","CryptoJS/Forge/SJCL interception","JWT extraction/tampering","OAuth2 refresh token theft","Cookie jar and session hijacking"]},
+{name:"S13 - Plugin Ecosystem Vulnerabilities",badge:"NEW | ~5h",isNew:true,tools:["npm audit","Snyk","jadx"],items:[
+"cordova-plugin-inappbrowser JS injection","inappbrowser executeScript exploitation","cordova-plugin-file path traversal","cordova-plugin-whitelist bypass","cordova-plugin-advanced-http cert bypass","Third-party plugin supply chain attacks","npm package tampering detection","Outdated plugin vulnerability scanning","Plugin permission escalation","Insecure plugin data transmission","Plugin native code vulnerabilities"]},
+{name:"S14 - Custom Bridge Protocol Analysis",badge:"NEW | ~5h",isNew:true,tools:["Chrome DevTools","Frida","jadx"],items:[
+"cordova.exec() message format spec","CallbackContext Java internals","NativeToJsMessageQueue analysis","Prompt-based vs JS bridge protocol","Online event-based bridge","Batch message processing","Bridge initialization hooking","Custom bridge implementations","Message serialization format","Callback ID tracking","Plugin result types (OK/ERROR/NO_RESULT)"]},
+{name:"S15 - Automated Security Testing",badge:"NEW | ~5h",isNew:true,tools:["MobSF","Drozer","QARK"],items:[
+"MobSF automated scan for Cordova","Custom static analysis scripts","Automated secret scanning in www/","Automated plugin vuln detection","config.xml automated analysis","Custom Frida automation","CDP automation via Puppeteer","CI/CD security integration","Report generation for audits"]},
+{name:"S16 - Real-World Attack Scenarios",badge:"NEW | ~8h",isNew:true,tools:["All Tools"],items:[
+"Banking/fintech app methodology","Payment gateway bypass","OTP/2FA bypass in Cordova","Subscription/premium unlock","API token theft and account takeover","Local auth (PIN/pattern) bypass","Biometric auth bypass","Push notification token theft","Geolocation spoofing","In-app purchase receipt forgery","DRM content extraction","Social engineering via deeplink","End-to-end pentest walkthrough"]},
+{name:"S17 - Advanced Network & Protocol Analysis",badge:"NEW | ~5h",isNew:true,tools:["Burp Suite","mitmproxy","Wireshark","Frida"],items:[
+"cordova-plugin-advanced-http full bypass","Plugin HTTP vs WebView HTTP differences","WebSocket (socket.io/SockJS) interception","Server-Sent Events capture","Long-polling interception","Firebase Realtime DB WebSocket","GraphQL subscription analysis","Binary protocol (protobuf/msgpack)","mTLS client certificate bypass","Custom HTTP header manipulation","Request signing/HMAC bypass","Rate limiting bypass"]}
+]}
+];
+
+let state={};
+let currentFilter='all';
+
+function init(){
+  const saved=localStorage.getItem('android_re_tracker');
+  if(saved){try{state=JSON.parse(saved)}catch(e){state={}}}
+  const ls=localStorage.getItem('android_re_tracker_time');
+  if(ls)document.getElementById('lastSave').textContent='[LAST_SAVE: '+ls+']';
+  render();
+  updateAllProgress();
+  // Update total lessons stat
+  let total=0;
+  DATA.forEach(fw=>fw.sections.forEach(s=>total+=s.items.length));
+  document.getElementById('totalLessons').innerHTML='TARGETS: <span>'+total+'</span>';
+}
+
+function render(){
+  const box=document.getElementById('content');
+  let html='';
+  DATA.forEach(fw=>{
+    html+=`<div class="fw" id="fw-${fw.id}">`;
+    html+=`<div class="fh" onclick="tF(this)">`;
+    html+=`<div class="fi" style="background:linear-gradient(135deg,${fw.color})">${fw.icon}</div>`;
+    html+=`<div class="ft"><h2>${fw.name}</h2><p>> ${fw.desc}</p>`;
+    html+=`<div class="fprog"><div class="mini-bar"><div class="mini-fill" id="fp-${fw.id}" style="width:0%"></div></div><span class="pct" id="fpt-${fw.id}">0%</span></div>`;
+    html+=`</div><span class="arrow">&#9654;</span></div>`;
+    html+=`<div class="fb">`;
+    fw.sections.forEach((sec,si)=>{
+      const secId=`${fw.id}-s${si}`;
+      html+=`<div class="sc"><div class="sec-h" onclick="tS(this)">`;
+      html+=`<h3>${sec.name}${sec.isNew?'<span class="new-badge">NEW</span>':''}</h3>`;
+      html+=`<div class="sec-prog"><div class="mini-bar"><div class="mini-fill" id="sp-${secId}" style="width:0%"></div></div><span class="cnt" id="spt-${secId}">0/${sec.items.length}</span></div>`;
+      html+=`<span class="badge">${sec.badge}</span><span class="arrow">&#9654;</span></div>`;
+      html+=`<div class="sb">`;
+      if(sec.tools.length){
+        html+=`<div class="tools">`;
+        sec.tools.forEach(t=>{html+=`<span class="tool">${t}</span>`});
+        html+=`</div>`;
+      }
+      sec.items.forEach((item,ii)=>{
+        const iid=`${secId}-i${ii}`;
+        const checked=state[iid]?'checked':'';
+        const doneClass=state[iid]?'done':'';
+        html+=`<div class="item ${doneClass}" id="row-${iid}">`;
+        html+=`<input type="checkbox" class="cb" id="${iid}" ${checked} onchange="toggle('${iid}')">`;
+        html+=`<label class="item-text" for="${iid}">${item}</label>`;
+        html+=`</div>`;
+      });
+      html+=`</div></div>`;
+    });
+    html+=`</div></div>`;
+  });
+  box.innerHTML=html;
+}
+
+function toggle(id){
+  const cb=document.getElementById(id);
+  state[id]=cb.checked;
+  const row=document.getElementById('row-'+id);
+  if(cb.checked){row.classList.add('done')}else{row.classList.remove('done')}
+  updateAllProgress();
+  autoSave();
+}
+
+function updateAllProgress(){
+  let totalDone=0,totalAll=0;
+  DATA.forEach(fw=>{
+    let fwDone=0,fwAll=0;
+    fw.sections.forEach((sec,si)=>{
+      const secId=`${fw.id}-s${si}`;
+      let sDone=0;
+      sec.items.forEach((item,ii)=>{
+        const iid=`${secId}-i${ii}`;
+        if(state[iid])sDone++;
+      });
+      fwDone+=sDone;fwAll+=sec.items.length;
+      const sp=document.getElementById('sp-'+secId);
+      const spt=document.getElementById('spt-'+secId);
+      if(sp)sp.style.width=(sec.items.length?sDone/sec.items.length*100:0)+'%';
+      if(spt)spt.textContent=sDone+'/'+sec.items.length;
+    });
+    totalDone+=fwDone;totalAll+=fwAll;
+    const fp=document.getElementById('fp-'+fw.id);
+    const fpt=document.getElementById('fpt-'+fw.id);
+    if(fp)fp.style.width=(fwAll?fwDone/fwAll*100:0)+'%';
+    if(fpt)fpt.textContent=Math.round(fwAll?fwDone/fwAll*100:0)+'%';
+  });
+  document.getElementById('totalPct').textContent=Math.round(totalAll?totalDone/totalAll*100:0)+'%';
+  document.getElementById('totalCount').textContent=totalDone+' / '+totalAll+' targets compromised';
+  document.getElementById('totalFill').style.width=(totalAll?totalDone/totalAll*100:0)+'%';
+}
+
+function autoSave(){
+  localStorage.setItem('android_re_tracker',JSON.stringify(state));
+  const now=new Date().toLocaleString();
+  localStorage.setItem('android_re_tracker_time',now);
+  document.getElementById('lastSave').textContent='[LAST_SAVE: '+now+']';
+}
+
+function saveData(){
+  autoSave();
+  const msg=document.getElementById('saveMsg');
+  msg.style.display='flex';
+  setTimeout(()=>{msg.style.display='none'},2000);
+}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='android_re_progress_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+
+function importData(){
+  const input=document.createElement('input');
+  input.type='file';input.accept='.json';
+  input.onchange=e=>{
+    const file=e.target.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        state=JSON.parse(ev.target.result);
+        autoSave();render();updateAllProgress();
+        alert('[+] Data imported successfully!');
+      }catch(err){alert('[-] ERROR: Invalid file format')}
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function resetData(){
+  if(!confirm('[!] WARNING: PURGE ALL PROGRESS DATA?\nThis action is IRREVERSIBLE!'))return;
+  state={};
+  localStorage.removeItem('android_re_tracker');
+  localStorage.removeItem('android_re_tracker_time');
+  render();updateAllProgress();
+  document.getElementById('lastSave').textContent='';
+}
+
+function tF(el){const b=el.nextElementSibling,a=el.querySelector('.arrow');b.classList.toggle('open');a&&a.classList.toggle('open')}
+function tS(el){const b=el.nextElementSibling,a=el.querySelector('.arrow');b.classList.toggle('open');a&&a.classList.toggle('open')}
+
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.filter-bar button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.item').forEach(el=>{
+    const cb=el.querySelector('.cb');
+    if(f==='all')el.classList.remove('hidden');
+    else if(f==='done')el.classList.toggle('hidden',!cb.checked);
+    else el.classList.toggle('hidden',cb.checked);
+  });
+}
+
+function filterItems(){
+  const q=document.getElementById('search').value.toLowerCase();
+  document.querySelectorAll('.item').forEach(el=>{
+    const txt=el.querySelector('.item-text').textContent.toLowerCase();
+    el.classList.toggle('hidden',q&&!txt.includes(q));
+  });
+}
+
+function expandAll(e){
+  e.preventDefault();
+  document.querySelectorAll('.fb,.sb').forEach(el=>el.classList.add('open'));
+  document.querySelectorAll('.arrow').forEach(el=>el.classList.add('open'));
+}
+function collapseAll(e){
+  e.preventDefault();
+  document.querySelectorAll('.fb,.sb').forEach(el=>el.classList.remove('open'));
+  document.querySelectorAll('.arrow').forEach(el=>el.classList.remove('open'));
+}
+
+init();
+</script>
+</body>
+</html>
