@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blutter - Complete Guide | Flutter Reverse Engineering</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%230553B1'/><text x='50' y='65' text-anchor='middle' fill='%2302569B' font-family='Arial' font-size='55' font-weight='bold'>B</text><text x='50' y='65' text-anchor='middle' fill='%2345D1FD' font-family='Arial' font-size='55' font-weight='bold'>B</text></svg>">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700;800;900&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#f8fafc;
+  --bg2:#ffffff;
+  --bg3:#f1f5f9;
+  --border:#e2e8f0;
+  --border2:#cbd5e1;
+  --primary:#0553B1;
+  --primary-light:#45D1FD;
+  --primary-bg:#eff6ff;
+  --accent:#027DFD;
+  --success:#059669;
+  --success-bg:#ecfdf5;
+  --warning:#d97706;
+  --warning-bg:#fffbeb;
+  --danger:#dc2626;
+  --danger-bg:#fef2f2;
+  --purple:#7c3aed;
+  --purple-bg:#f5f3ff;
+  --text:#0f172a;
+  --text2:#334155;
+  --text3:#64748b;
+  --text4:#94a3b8;
+  --code-bg:#1e293b;
+  --code-text:#e2e8f0;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.05);
+  --shadow-lg:0 10px 15px -3px rgba(0,0,0,0.08),0 4px 6px -4px rgba(0,0,0,0.04);
+  --radius:12px;
+}
+
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Tajawal','Inter',sans-serif;
+  line-height:1.8;font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--text4)}
+
+/* Hero Section */
+.hero{
+  background:linear-gradient(135deg,#0553B1 0%,#027DFD 50%,#45D1FD 100%);
+  color:#fff;padding:60px 20px 50px;
+  text-align:center;position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle,rgba(255,255,255,0.08) 0%,transparent 60%);
+  animation:float 15s linear infinite;
+}
+@keyframes float{
+  0%{transform:translate(0,0) rotate(0deg)}
+  50%{transform:translate(-20px,20px) rotate(180deg)}
+  100%{transform:translate(0,0) rotate(360deg)}
+}
+.hero-badge{
+  display:inline-block;padding:6px 16px;
+  background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);
+  border-radius:20px;font-size:0.8em;margin-bottom:15px;
+  border:1px solid rgba(255,255,255,0.2);
+  font-family:'JetBrains Mono',monospace;
+}
+.hero h1{
+  font-size:3.2em;font-weight:900;margin-bottom:10px;
+  font-family:'Inter','Tajawal',sans-serif;letter-spacing:-1px;
+  position:relative;
+}
+.hero h1 span{
+  background:linear-gradient(135deg,#fff 0%,#45D1FD 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero-sub{
+  font-size:1.15em;opacity:0.9;max-width:700px;margin:0 auto 20px;
+  line-height:1.6;
+}
+.hero-stats{
+  display:flex;gap:30px;justify-content:center;flex-wrap:wrap;
+  margin-top:25px;
+}
+.hero-stat{
+  text-align:center;
+}
+.hero-stat .num{font-size:1.8em;font-weight:800;font-family:'Inter',sans-serif}
+.hero-stat .label{font-size:0.8em;opacity:0.8}
+
+/* Container */
+.container{max-width:1100px;margin:0 auto;padding:30px 20px}
+
+/* Navigation */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,0.95);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:10px 20px;
+}
+.nav-inner{
+  max-width:1100px;margin:0 auto;
+  display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
+}
+.nav a{
+  padding:6px 14px;border-radius:8px;
+  color:var(--text3);text-decoration:none;
+  font-size:0.82em;font-weight:500;
+  transition:.2s;border:1px solid transparent;
+}
+.nav a:hover{
+  background:var(--primary-bg);color:var(--primary);
+  border-color:var(--primary);
+}
+
+/* Section */
+.section{margin:40px 0}
+.section-header{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:20px;padding-bottom:12px;
+  border-bottom:2px solid var(--border);
+}
+.section-icon{
+  width:44px;height:44px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3em;flex-shrink:0;
+}
+.section-header h2{
+  font-size:1.5em;font-weight:800;color:var(--text);
+  font-family:'Tajawal','Inter',sans-serif;
+}
+
+/* Cards */
+.card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;
+  margin:16px 0;box-shadow:var(--shadow);
+  transition:.3s;
+}
+.card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.card h3{
+  font-size:1.15em;font-weight:700;margin-bottom:10px;
+  color:var(--primary);
+}
+.card p{color:var(--text2);line-height:1.8;margin-bottom:10px}
+
+/* Info Boxes */
+.info-box{
+  padding:16px 20px;border-radius:10px;margin:16px 0;
+  display:flex;align-items:flex-start;gap:12px;
+}
+.info-box.blue{background:var(--primary-bg);border-right:4px solid var(--accent)}
+.info-box.green{background:var(--success-bg);border-right:4px solid var(--success)}
+.info-box.yellow{background:var(--warning-bg);border-right:4px solid var(--warning)}
+.info-box.red{background:var(--danger-bg);border-right:4px solid var(--danger)}
+.info-box.purple{background:var(--purple-bg);border-right:4px solid var(--purple)}
+.info-box-icon{font-size:1.3em;flex-shrink:0;margin-top:2px}
+.info-box-content{flex:1}
+.info-box-content strong{display:block;margin-bottom:4px}
+
+/* Code Blocks */
+.code-block{
+  background:var(--code-bg);color:var(--code-text);
+  border-radius:10px;padding:20px;margin:16px 0;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.85em;line-height:1.7;
+  overflow-x:auto;direction:ltr;text-align:left;
+  position:relative;
+}
+.code-block .label{
+  position:absolute;top:8px;right:12px;
+  font-size:0.7em;color:var(--text4);
+  background:rgba(255,255,255,0.08);
+  padding:2px 10px;border-radius:4px;
+}
+.code-block .comment{color:#6b7280}
+.code-block .keyword{color:#93c5fd}
+.code-block .string{color:#86efac}
+.code-block .func{color:#fbbf24}
+.code-block .flag{color:#f9a8d4}
+.code-block .path{color:#67e8f9}
+.code-block .cmd{color:#c4b5fd}
+
+/* Inline Code */
+code{
+  background:var(--bg3);color:var(--danger);
+  padding:2px 8px;border-radius:5px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.88em;direction:ltr;
+}
+
+/* Table */
+.table-wrap{overflow-x:auto;margin:16px 0;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--bg3)}
+th{padding:12px 16px;font-weight:600;font-size:0.88em;color:var(--text2);text-align:right;border-bottom:2px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:0.9em;color:var(--text2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--primary-bg)}
+
+/* List */
+.feature-list{list-style:none;padding:0}
+.feature-list li{
+  padding:10px 0;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:10px;
+}
+.feature-list li:last-child{border-bottom:none}
+.feature-list .check{color:var(--success);flex-shrink:0;font-size:1.1em;margin-top:3px}
+
+/* Architecture Diagram */
+.arch-diagram{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:30px;margin:20px 0;
+  text-align:center;direction:ltr;
+}
+.arch-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:8px 0}
+.arch-box{
+  padding:12px 20px;border-radius:8px;font-size:0.85em;
+  font-weight:600;min-width:140px;text-align:center;
+  font-family:'JetBrains Mono','Tajawal',sans-serif;
+}
+.arch-arrow{
+  text-align:center;color:var(--text4);font-size:1.3em;margin:5px 0;
+}
+
+/* Flow Steps */
+.flow{counter-reset:step}
+.flow-step{
+  position:relative;padding:20px 25px 20px 70px;
+  margin:12px 0;background:var(--bg2);
+  border:1px solid var(--border);border-radius:var(--radius);
+  counter-increment:step;
+  transition:.2s;
+}
+.flow-step:hover{border-color:var(--accent);box-shadow:var(--shadow-md)}
+.flow-step::before{
+  content:counter(step);position:absolute;right:20px;top:18px;
+  width:36px;height:36px;border-radius:50%;
+  background:var(--primary);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:0.9em;font-family:'Inter',sans-serif;
+}
+.flow-step h4{font-size:1em;font-weight:700;margin-bottom:6px;color:var(--text)}
+.flow-step p{font-size:0.9em;color:var(--text2)}
+
+/* Grid */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+
+/* Tags */
+.tag{
+  display:inline-block;padding:3px 10px;border-radius:6px;
+  font-size:0.75em;font-weight:600;margin:2px;
+}
+.tag-blue{background:var(--primary-bg);color:var(--primary)}
+.tag-green{background:var(--success-bg);color:var(--success)}
+.tag-purple{background:var(--purple-bg);color:var(--purple)}
+.tag-yellow{background:var(--warning-bg);color:var(--warning)}
+.tag-red{background:var(--danger-bg);color:var(--danger)}
+
+/* Accordion */
+.accordion{margin:12px 0}
+.acc-header{
+  padding:16px 20px;background:var(--bg2);
+  border:1px solid var(--border);border-radius:var(--radius);
+  cursor:pointer;display:flex;align-items:center;gap:12px;
+  font-weight:600;transition:.2s;user-select:none;
+}
+.acc-header:hover{background:var(--bg3)}
+.acc-arrow{transition:.3s;margin-left:auto;color:var(--text4)}
+.acc-arrow.open{transform:rotate(90deg)}
+.acc-body{
+  display:none;padding:16px 20px;
+  border:1px solid var(--border);border-top:none;
+  border-radius:0 0 var(--radius) var(--radius);
+  background:var(--bg2);
+}
+.acc-body.open{display:block}
+
+/* TOC */
+.toc{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;margin:20px 0;
+}
+.toc h3{font-size:1.1em;margin-bottom:12px;color:var(--primary)}
+.toc-list{list-style:none;padding:0;columns:2}
+.toc-list li{padding:4px 0}
+.toc-list a{
+  color:var(--text2);text-decoration:none;font-size:0.9em;
+  transition:.2s;display:flex;align-items:center;gap:6px;
+}
+.toc-list a:hover{color:var(--primary)}
+.toc-list .num{
+  color:var(--text4);font-family:'JetBrains Mono',monospace;
+  font-size:0.8em;min-width:24px;
+}
+
+/* Responsive */
+@media(max-width:768px){
+  .hero h1{font-size:2em}
+  .hero-stats{gap:15px}
+  .toc-list{columns:1}
+  .flow-step{padding-right:65px}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+}
+
+/* Print */
+@media print{
+  .nav{display:none}
+  .hero{padding:20px;background:#0553B1 !important;-webkit-print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">worawit/blutter &bull; MIT License &bull; v2.0</div>
+  <h1><span>B(l)utter</span></h1>
+  <p class="hero-sub">
+    Flutter Mobile Application Reverse Engineering Tool<br>
+    by Compiling Dart AOT Runtime
+  </p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">2.1K+</div><div class="label">GitHub Stars</div></div>
+    <div class="hero-stat"><div class="num">284</div><div class="label">Forks</div></div>
+    <div class="hero-stat"><div class="num">C++</div><div class="label">89.5% Core</div></div>
+    <div class="hero-stat"><div class="num">ARM64</div><div class="label">Architecture</div></div>
+  </div>
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#what">ما هو Blutter</a>
+    <a href="#why">لماذا نحتاجه</a>
+    <a href="#arch">البنية الداخلية</a>
+    <a href="#setup">التثبيت</a>
+    <a href="#usage">الاستخدام</a>
+    <a href="#output">المخرجات</a>
+    <a href="#source">الكود المصدري</a>
+    <a href="#pipeline">خط الأنابيب</a>
+    <a href="#frida">Frida Script</a>
+    <a href="#practical">التطبيق العملي</a>
+    <a href="#advanced">متقدم</a>
+    <a href="#troubleshoot">حل المشاكل</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- TOC -->
+<div class="toc">
+  <h3>فهرس المحتويات</h3>
+  <ol class="toc-list">
+    <li><a href="#what"><span class="num">01</span> ما هو B(l)utter؟</a></li>
+    <li><a href="#why"><span class="num">02</span> لماذا نحتاج Blutter؟</a></li>
+    <li><a href="#flutter-re"><span class="num">03</span> مشكلة Flutter RE</a></li>
+    <li><a href="#arch"><span class="num">04</span> البنية الداخلية والمكونات</a></li>
+    <li><a href="#setup"><span class="num">05</span> التثبيت على جميع الأنظمة</a></li>
+    <li><a href="#usage"><span class="num">06</span> طريقة الاستخدام خطوة بخطوة</a></li>
+    <li><a href="#output"><span class="num">07</span> فهم ملفات المخرجات</a></li>
+    <li><a href="#source"><span class="num">08</span> تحليل الكود المصدري</a></li>
+    <li><a href="#pipeline"><span class="num">09</span> خط أنابيب التحليل الكامل</a></li>
+    <li><a href="#frida"><span class="num">10</span> Frida Script المولد</a></li>
+    <li><a href="#practical"><span class="num">11</span> التطبيق العملي (أمثلة)</a></li>
+    <li><a href="#advanced"><span class="num">12</span> مواضيع متقدمة</a></li>
+    <li><a href="#troubleshoot"><span class="num">13</span> حل المشاكل الشائعة</a></li>
+    <li><a href="#comparison"><span class="num">14</span> المقارنة مع الأدوات الأخرى</a></li>
+  </ol>
+</div>
+
+<!-- Section 1: What is Blutter -->
+<div class="section" id="what">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--primary-bg);color:var(--primary)">01</div>
+    <h2>ما هو B(l)utter؟</h2>
+  </div>
+
+  <div class="card">
+    <h3>التعريف</h3>
+    <p>
+      <strong>B(l)utter</strong> هو أداة Reverse Engineering مفتوحة المصدر متخصصة في تحليل تطبيقات Flutter المبنية على Android.
+      تعمل الأداة عن طريق <strong>تجميع Dart AOT Runtime</strong> بنفس إصدار Dart المستخدم في التطبيق المستهدف، ثم استخدام هذا الـ Runtime لقراءة وفهم بنية الـ Snapshot الموجودة داخل <code>libapp.so</code>.
+    </p>
+    <p>
+      الأداة من تطوير <strong>worawit</strong> (المعروف أيضاً بـ <strong>sleepya</strong>)، وهو باحث أمني معروف ساهم في اكتشاف ثغرات كبيرة مثل EternalBlue. مكتوبة بـ <strong>C++20</strong> مع scripts بـ Python.
+    </p>
+  </div>
+
+  <div class="info-box blue">
+    <div class="info-box-icon">&#128161;</div>
+    <div class="info-box-content">
+      <strong>لماذا اسم B(l)utter؟</strong>
+      الاسم مزيج من <strong>B</strong>inary و F<strong>lutter</strong> - أداة لتحليل Flutter binaries. الأقواس حول (l) تشير إلى أن الـ "l" اختياري.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>الميزات الرئيسية</h3>
+    <ul class="feature-list">
+      <li><span class="check">&#10003;</span> <span>استخراج أسماء الـ Classes والـ Methods والـ Fields من Dart AOT Snapshot</span></li>
+      <li><span class="check">&#10003;</span> <span>توليد Assembly مقروء مع رموز (symbols) كاملة</span></li>
+      <li><span class="check">&#10003;</span> <span>Dump كامل لـ Object Pool مع جميع الكائنات</span></li>
+      <li><span class="check">&#10003;</span> <span>تحليل الكود وتحديد أنواع المعاملات والقيم المرجعة</span></li>
+      <li><span class="check">&#10003;</span> <span>توليد Frida script جاهز للاستخدام مع template</span></li>
+      <li><span class="check">&#10003;</span> <span>توليد IDA Pro script لاستيراد الرموز</span></li>
+      <li><span class="check">&#10003;</span> <span>كشف تلقائي لإصدار Dart من libflutter.so</span></li>
+      <li><span class="check">&#10003;</span> <span>بناء تلقائي لـ Dart VM library المطلوب</span></li>
+      <li><span class="check">&#10003;</span> <span>دعم Compressed Pointers و Null Safety</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Section 2: Why -->
+<div class="section" id="why">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--warning-bg);color:var(--warning)">02</div>
+    <h2>لماذا نحتاج Blutter؟</h2>
+  </div>
+
+  <div class="card" id="flutter-re">
+    <h3>مشكلة Flutter Reverse Engineering</h3>
+    <p>تطبيقات Flutter تختلف جذرياً عن تطبيقات Android التقليدية:</p>
+
+    <div class="grid-2" style="margin-top:15px">
+      <div class="info-box red" style="margin:0">
+        <div class="info-box-content">
+          <strong>Android التقليدي (Java/Kotlin)</strong>
+          الكود يترجم إلى Dalvik bytecode في <code>classes.dex</code>. أدوات مثل jadx تستطيع عكسه بسهولة واستخراج كود Java/Kotlin شبه كامل.
+        </div>
+      </div>
+      <div class="info-box blue" style="margin:0">
+        <div class="info-box-content">
+          <strong>Flutter (Dart)</strong>
+          الكود يترجم مباشرة إلى <strong>ARM native code</strong> (AOT Compilation) داخل <code>libapp.so</code>. لا يوجد bytecode - فقط machine code خام يصعب تحليله.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>التحديات بدون Blutter</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>التحدي</th><th>الوصف</th><th>حل Blutter</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>لا رموز (Symbols)</strong></td>
+            <td>libapp.so لا يحتوي على أسماء الدوال أو الكلاسات في الحالة العادية</td>
+            <td>يستخرج جميع الرموز من Dart Snapshot metadata</td>
+          </tr>
+          <tr>
+            <td><strong>Snapshot Format خاص</strong></td>
+            <td>Dart يستخدم format مخصص لتخزين الكائنات والكود، يتغير مع كل إصدار</td>
+            <td>يبني Dart VM بنفس الإصدار لقراءة الـ Snapshot بشكل صحيح</td>
+          </tr>
+          <tr>
+            <td><strong>Object Pool معقد</strong></td>
+            <td>الثوابت والكائنات مخزنة في Object Pool بتنسيق ثنائي</td>
+            <td>يعمل Dump كامل للـ Object Pool مع أنواع الكائنات وقيمها</td>
+          </tr>
+          <tr>
+            <td><strong>Compressed Pointers</strong></td>
+            <td>Flutter يستخدم ضغط المؤشرات (32-bit بدلاً من 64-bit) مما يعقد التحليل</td>
+            <td>يتعامل تلقائياً مع الـ Compressed Pointers</td>
+          </tr>
+          <tr>
+            <td><strong>SSL Pinning معقد</strong></td>
+            <td>Flutter يستخدم BoringSSL مدمج في libflutter.so</td>
+            <td>يوفر Frida template جاهز للـ hooking</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Section 3: Architecture -->
+<div class="section" id="arch">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--purple-bg);color:var(--purple)">04</div>
+    <h2>البنية الداخلية والمكونات</h2>
+  </div>
+
+  <div class="arch-diagram">
+    <h3 style="margin-bottom:20px;color:var(--text)">Architecture Overview</h3>
+    <div class="arch-row">
+      <div class="arch-box" style="background:#fef2f2;color:#dc2626;border:2px solid #fca5a5">APK File (Flutter App)</div>
+    </div>
+    <div class="arch-arrow">&darr; apktool / unzip</div>
+    <div class="arch-row">
+      <div class="arch-box" style="background:#eff6ff;color:#1d4ed8;border:2px solid #93c5fd">lib/arm64-v8a/libapp.so</div>
+      <div class="arch-box" style="background:#f0fdf4;color:#15803d;border:2px solid #86efac">lib/arm64-v8a/libflutter.so</div>
+    </div>
+    <div class="arch-arrow">&darr; extract_dart_info.py</div>
+    <div class="arch-row">
+      <div class="arch-box" style="background:#faf5ff;color:#7c3aed;border:2px solid #c4b5fd">Dart Version Detection</div>
+      <div class="arch-box" style="background:#faf5ff;color:#7c3aed;border:2px solid #c4b5fd">Snapshot Hash & Flags</div>
+    </div>
+    <div class="arch-arrow">&darr; dartvm_fetch_build.py</div>
+    <div class="arch-row">
+      <div class="arch-box" style="background:#fffbeb;color:#b45309;border:2px solid #fcd34d">Dart SDK Checkout & Build</div>
+    </div>
+    <div class="arch-arrow">&darr; blutter.py (cmake + ninja)</div>
+    <div class="arch-row">
+      <div class="arch-box" style="background:#ecfdf5;color:#047857;border:2px solid #6ee7b7">Blutter Executable (C++)</div>
+    </div>
+    <div class="arch-arrow">&darr; Analysis</div>
+    <div class="arch-row">
+      <div class="arch-box" style="background:#f0f9ff;color:#0369a1;border:1px solid #7dd3fc">asm/*</div>
+      <div class="arch-box" style="background:#f0f9ff;color:#0369a1;border:1px solid #7dd3fc">pp.txt</div>
+      <div class="arch-box" style="background:#f0f9ff;color:#0369a1;border:1px solid #7dd3fc">objs.txt</div>
+      <div class="arch-box" style="background:#f0f9ff;color:#0369a1;border:1px solid #7dd3fc">blutter_frida.js</div>
+      <div class="arch-box" style="background:#f0f9ff;color:#0369a1;border:1px solid #7dd3fc">ida_script/</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>المكونات الأساسية (C++ Source)</h3>
+    <p>كود Blutter الأساسي مكتوب بـ C++20 ويتكون من المكونات التالية:</p>
+
+    <div class="table-wrap" style="margin-top:15px">
+      <table>
+        <thead><tr><th>الملف</th><th>المسؤولية</th><th>التفاصيل</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>main.cpp</code></td>
+            <td>نقطة الدخول</td>
+            <td>يحلل الـ arguments، يحمل libapp.so، يشغل التحليل والـ dump</td>
+          </tr>
+          <tr>
+            <td><code>DartApp</code></td>
+            <td>النواة الرئيسية</td>
+            <td>يحمل الـ ELF binary، يهيئ Dart VM، يقرأ Class Table و Object Pool، يبني خريطة Libraries/Classes/Functions</td>
+          </tr>
+          <tr>
+            <td><code>ElfHelper</code></td>
+            <td>قراءة ELF</td>
+            <td>يقرأ libapp.so كـ ELF file، يحدد مواقع الـ 4 snapshots: <code>vm_snapshot_data</code>, <code>vm_snapshot_instructions</code>, <code>isolate_snapshot_data</code>, <code>isolate_snapshot_instructions</code></td>
+          </tr>
+          <tr>
+            <td><code>DartLoader</code></td>
+            <td>تحميل Dart VM</td>
+            <td>يهيئ Dart Isolate باستخدام snapshot data لقراءة metadata</td>
+          </tr>
+          <tr>
+            <td><code>DartLibrary</code></td>
+            <td>مكتبات Dart</td>
+            <td>يمثل كل library في التطبيق (مثل dart:core, package:flutter, etc)</td>
+          </tr>
+          <tr>
+            <td><code>DartClass</code></td>
+            <td>الكلاسات</td>
+            <td>يستخرج كل class مع الـ fields, methods, type arguments, inheritance, mixins</td>
+          </tr>
+          <tr>
+            <td><code>DartFunction</code></td>
+            <td>الدوال</td>
+            <td>يمثل كل function مع entry point, size, signature, parameters, closure info</td>
+          </tr>
+          <tr>
+            <td><code>DartStub</code></td>
+            <td>الـ Stubs</td>
+            <td>يتعرف على Dart VM stubs مثل AllocateObject, TypeCheck, MethodExtractor</td>
+          </tr>
+          <tr>
+            <td><code>DartTypes</code></td>
+            <td>نظام الأنواع</td>
+            <td>يدير Type, TypeParameter, FunctionType, RecordType (Dart 3+), TypeArguments</td>
+          </tr>
+          <tr>
+            <td><code>DartField</code></td>
+            <td>الحقول</td>
+            <td>يمثل حقول الكلاسات مع الـ offset, type, unboxed bitmap</td>
+          </tr>
+          <tr>
+            <td><code>CodeAnalyzer</code></td>
+            <td>تحليل الكود</td>
+            <td>يحول ARM64 assembly إلى IL (Intermediate Language)، يتتبع registers و local variables</td>
+          </tr>
+          <tr>
+            <td><code>Disassembler</code></td>
+            <td>التفكيك</td>
+            <td>يستخدم مكتبة Capstone لتفكيك ARM64 instructions</td>
+          </tr>
+          <tr>
+            <td><code>DartDumper</code></td>
+            <td>التصدير</td>
+            <td>يصدر Assembly files, Object Pool dump, Objects dump, IDA scripts</td>
+          </tr>
+          <tr>
+            <td><code>FridaWriter</code></td>
+            <td>توليد Frida</td>
+            <td>يولد Frida JavaScript script مع class definitions و helper functions</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>سير العمل الداخلي لـ DartApp</h3>
+    <p>عندما يتم تشغيل Blutter، يحدث التالي داخل <code>DartApp</code>:</p>
+    <div class="flow">
+      <div class="flow-step">
+        <h4>تحميل ELF Binary</h4>
+        <p><code>ElfHelper::MapLibAppSo()</code> يقرأ libapp.so ويحدد مواقع الـ 4 snapshot sections عبر البحث عن symbols مثل <code>_kDartVmSnapshotData</code></p>
+      </div>
+      <div class="flow-step">
+        <h4>تهيئة Dart VM</h4>
+        <p><code>DartLoader::Load()</code> يهيئ Dart Isolate باستخدام الـ snapshot data. هذا يسمح بالوصول إلى الـ metadata عبر Dart VM API</p>
+      </div>
+      <div class="flow-step">
+        <h4>قراءة Class Table</h4>
+        <p><code>loadFromClassTable()</code> يمر على جميع الـ classes المسجلة في IsolateGroup، يستخرج الأسماء، الحقول، الـ methods، الـ inheritance chain</p>
+      </div>
+      <div class="flow-step">
+        <h4>تحميل Stubs</h4>
+        <p><code>loadStubs()</code> يقرأ Object Store ويتعرف على جميع Dart VM stubs (مثل AllocateObject, StackOverflow, TypeCheck)</p>
+      </div>
+      <div class="flow-step">
+        <h4>قراءة Object Pool</h4>
+        <p><code>loadFromObjectPool()</code> يمر على كل entry في الـ Object Pool ويربطها بالـ classes والـ functions المكتشفة</p>
+      </div>
+      <div class="flow-step">
+        <h4>البحث عن Functions في Heap</h4>
+        <p><code>findFunctionInHeap()</code> يبحث عن Code objects في الـ heap لاكتشاف functions لم يتم ربطها بأي class (مثل closures مفقودة)</p>
+      </div>
+      <div class="flow-step">
+        <h4>تحليل الكود (Code Analysis)</h4>
+        <p><code>CodeAnalyzer::AnalyzeAll()</code> يمر على كل function ويحول ARM64 assembly إلى IL مع تتبع registers وتحديد أنواع المعاملات</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 4: Setup -->
+<div class="section" id="setup">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--success-bg);color:var(--success)">05</div>
+    <h2>التثبيت على جميع الأنظمة</h2>
+  </div>
+
+  <div class="info-box yellow">
+    <div class="info-box-icon">&#9888;</div>
+    <div class="info-box-content">
+      <strong>متطلبات مهمة</strong>
+      Blutter يستخدم C++20 Formatting library. يحتاج compiler حديث: <code>g++ >= 13</code> أو <code>Clang >= 16</code>. الإصدارات القديمة لن تعمل.
+    </div>
+  </div>
+
+  <!-- Linux -->
+  <div class="accordion">
+    <div class="acc-header" onclick="toggleAcc(this)">
+      <span>&#128039;</span> Linux (Debian/Ubuntu) - الموصى به
+      <span class="tag tag-green">Recommended</span>
+      <span class="acc-arrow">&#9654;</span>
+    </div>
+    <div class="acc-body">
+      <p>أسهل نظام للتثبيت. استخدم Debian Unstable (sid/trixie) أو Ubuntu 24.04+</p>
+      <div class="code-block">
+        <span class="label">Terminal</span>
+<span class="comment"># 1. تثبيت الأدوات والمكتبات المطلوبة</span>
+<span class="cmd">sudo apt install</span> python3-pyelftools python3-requests git cmake ninja-build \
+    build-essential pkg-config libicu-dev libcapstone-dev
+
+<span class="comment"># 2. استنساخ المستودع</span>
+<span class="cmd">git clone</span> https://github.com/worawit/blutter.git
+<span class="cmd">cd</span> blutter
+
+<span class="comment"># 3. جاهز للاستخدام!</span>
+<span class="cmd">python3</span> blutter.py <span class="path">path/to/app/lib/arm64-v8a</span> <span class="path">out_dir</span>
+      </div>
+
+      <div class="info-box red" style="margin-top:10px">
+        <div class="info-box-icon">&#9888;</div>
+        <div class="info-box-content">
+          <strong>تحذير</strong>
+          استخدم فقط Debian/Ubuntu الذي يوفر <code>gcc >= 13</code> من مستودعاته الرسمية. تثبيت gcc محمول على إصدار قديم لن يعمل.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Windows -->
+  <div class="accordion">
+    <div class="acc-header" onclick="toggleAcc(this)">
+      <span>&#128187;</span> Windows
+      <span class="tag tag-blue">Most Common</span>
+      <span class="acc-arrow">&#9654;</span>
+    </div>
+    <div class="acc-body">
+      <div class="code-block">
+        <span class="label">PowerShell / CMD</span>
+<span class="comment"># 1. تثبيت المتطلبات</span>
+<span class="comment">#    - Git: https://git-scm.com/</span>
+<span class="comment">#    - Python 3: https://python.org/</span>
+<span class="comment">#    - Visual Studio (Latest) with:</span>
+<span class="comment">#      * "Desktop development with C++"</span>
+<span class="comment">#      * "C++ CMake tools"</span>
+
+<span class="comment"># 2. استنساخ المستودع</span>
+<span class="cmd">git clone</span> https://github.com/worawit/blutter.git
+<span class="cmd">cd</span> blutter
+
+<span class="comment"># 3. تثبيت المكتبات (libcapstone و libicu4c)</span>
+<span class="cmd">python</span> scripts\init_env_win.py
+
+<span class="comment"># 4. فتح "x64 Native Tools Command Prompt" من Visual Studio</span>
+<span class="comment"># 5. التشغيل من داخل x64 Native Tools Command Prompt</span>
+<span class="cmd">python</span> blutter.py <span class="path">path\to\app\lib\arm64-v8a</span> <span class="path">out_dir</span>
+      </div>
+
+      <div class="info-box yellow">
+        <div class="info-box-icon">&#128270;</div>
+        <div class="info-box-content">
+          <strong>ملاحظة مهمة</strong>
+          يجب تشغيل الأمر من <strong>"x64 Native Tools Command Prompt"</strong> وليس من CMD أو PowerShell العادي. هذا الـ prompt يهيئ متغيرات البيئة اللازمة لـ MSVC compiler.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- macOS -->
+  <div class="accordion">
+    <div class="acc-header" onclick="toggleAcc(this)">
+      <span>&#127822;</span> macOS
+      <span class="acc-arrow">&#9654;</span>
+    </div>
+    <div class="acc-body">
+      <div class="code-block">
+        <span class="label">macOS Sequoia+</span>
+<span class="comment"># 1. تثبيت XCode من App Store</span>
+
+<span class="comment"># 2. تثبيت الأدوات المطلوبة</span>
+<span class="cmd">brew install</span> cmake ninja pkg-config icu4c capstone
+<span class="cmd">pip3 install</span> pyelftools requests
+
+<span class="comment"># 3. استنساخ وتشغيل</span>
+<span class="cmd">git clone</span> https://github.com/worawit/blutter.git
+<span class="cmd">cd</span> blutter
+<span class="cmd">python3</span> blutter.py <span class="path">path/to/app/lib/arm64-v8a</span> <span class="path">out_dir</span>
+      </div>
+
+      <div class="code-block">
+        <span class="label">macOS Ventura / Sonoma (يحتاج clang 16)</span>
+<span class="cmd">brew install</span> llvm@16 cmake ninja pkg-config icu4c capstone
+<span class="cmd">pip3 install</span> pyelftools requests
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 5: Usage -->
+<div class="section" id="usage">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--primary-bg);color:var(--primary)">06</div>
+    <h2>طريقة الاستخدام خطوة بخطوة</h2>
+  </div>
+
+  <div class="flow">
+    <div class="flow-step">
+      <h4>استخراج lib من APK</h4>
+      <p>استخدم <code>apktool</code> أو <code>unzip</code> لاستخراج محتويات الـ APK. نحتاج مجلد <code>lib/arm64-v8a/</code> الذي يحتوي على <code>libapp.so</code> و <code>libflutter.so</code></p>
+      <div class="code-block" style="margin-top:10px">
+<span class="comment"># الطريقة 1: unzip مباشر</span>
+<span class="cmd">unzip</span> target_app.apk -d extracted_apk
+
+<span class="comment"># الطريقة 2: apktool (يفك التشفير أيضاً)</span>
+<span class="cmd">apktool d</span> target_app.apk -o extracted_apk
+
+<span class="comment"># الطريقة 3: مباشرة من APK (Blutter يدعم هذا)</span>
+<span class="cmd">python3</span> blutter.py target_app.apk out_dir
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <h4>تشغيل Blutter</h4>
+      <p>الاستخدام الأساسي - أعطه مسار مجلد arm64-v8a ومجلد الإخراج:</p>
+      <div class="code-block" style="margin-top:10px">
+<span class="comment"># الاستخدام الأساسي</span>
+<span class="cmd">python3</span> blutter.py <span class="path">extracted_apk/lib/arm64-v8a</span> <span class="path">output</span>
+
+<span class="comment"># أو مباشرة من APK</span>
+<span class="cmd">python3</span> blutter.py <span class="path">target_app.apk</span> <span class="path">output</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <h4>أول تشغيل (البناء التلقائي)</h4>
+      <p>عند أول تشغيل لإصدار Dart جديد، Blutter سيقوم تلقائياً بـ:</p>
+      <div class="grid-2" style="margin-top:10px">
+        <div class="info-box blue" style="margin:0">
+          <div class="info-box-content">
+            <strong>1. كشف إصدار Dart</strong>
+            يقرأ <code>libflutter.so</code> لاستخراج engine ID وإصدار Dart
+          </div>
+        </div>
+        <div class="info-box purple" style="margin:0">
+          <div class="info-box-content">
+            <strong>2. تنزيل Dart SDK source</strong>
+            Git sparse checkout لـ runtime و tools فقط (يوفر حجم التنزيل)
+          </div>
+        </div>
+        <div class="info-box green" style="margin:0">
+          <div class="info-box-content">
+            <strong>3. بناء Dart VM library</strong>
+            يبني static library بـ cmake + ninja
+          </div>
+        </div>
+        <div class="info-box yellow" style="margin:0">
+          <div class="info-box-content">
+            <strong>4. بناء Blutter executable</strong>
+            يربط Blutter مع Dart VM library المبني
+          </div>
+        </div>
+      </div>
+      <div class="info-box green" style="margin-top:10px">
+        <div class="info-box-icon">&#128161;</div>
+        <div class="info-box-content">
+          أول تشغيل قد يستغرق <strong>10-30 دقيقة</strong> حسب سرعة الإنترنت والجهاز. التشغيلات اللاحقة لنفس إصدار Dart ستكون سريعة جداً لأن الـ executable محفوظ في <code>bin/</code>.
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <h4>فحص المخرجات</h4>
+      <p>بعد الانتهاء، ستجد المخرجات في مجلد <code>output/</code></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>جميع خيارات سطر الأوامر</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>الخيار</th><th>الوصف</th><th>مثال</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>indir</code></td>
+            <td>مجلد يحتوي libapp.so و libflutter.so، أو ملف APK مباشر</td>
+            <td><code>path/to/lib/arm64-v8a</code></td>
+          </tr>
+          <tr>
+            <td><code>outdir</code></td>
+            <td>مجلد الإخراج</td>
+            <td><code>output</code></td>
+          </tr>
+          <tr>
+            <td><code>--rebuild</code></td>
+            <td>إعادة بناء Blutter executable حتى لو موجود</td>
+            <td><code>--rebuild</code></td>
+          </tr>
+          <tr>
+            <td><code>--no-analysis</code></td>
+            <td>تعطيل تحليل الكود (أسرع، لكن بدون معلومات parameters)</td>
+            <td><code>--no-analysis</code></td>
+          </tr>
+          <tr>
+            <td><code>--vs-sln</code></td>
+            <td>توليد Visual Studio Solution للتطوير</td>
+            <td><code>--vs-sln</code></td>
+          </tr>
+          <tr>
+            <td><code>--dart-version</code></td>
+            <td>تحديد إصدار Dart يدوياً (بدون libflutter)</td>
+            <td><code>--dart-version 3.4.2_android_arm64</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Section 6: Output -->
+<div class="section" id="output">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--danger-bg);color:var(--danger)">07</div>
+    <h2>فهم ملفات المخرجات</h2>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="color:var(--success)">asm/* - Assembly Files</h3>
+      <p>مجلد يحتوي ملفات Assembly لكل library في التطبيق، منظمة بنفس هيكل packages التطبيق.</p>
+      <p>كل ملف يحتوي:</p>
+      <ul style="padding-right:20px;color:var(--text2)">
+        <li>أسماء الـ Classes مع الـ inheritance</li>
+        <li>أسماء الـ Methods مع الـ parameters</li>
+        <li>ARM64 Assembly مع رموز واضحة</li>
+        <li>تعليقات على Object Pool references</li>
+        <li>تعليقات على Thread offsets</li>
+      </ul>
+      <div class="code-block" style="font-size:0.78em">
+<span class="comment">// class LoginService extends Object {</span>
+<span class="comment">//   _ login(String username, String password) {</span>
+  <span class="keyword">0x1a2b4c</span>: stp  fp, lr, [sp, #-0x10]!
+  <span class="keyword">0x1a2b50</span>: mov  fp, sp
+  <span class="keyword">0x1a2b54</span>: ldr  x0, [PP, #0x1f8]  <span class="comment">; "https://api.example.com/login"</span>
+  <span class="keyword">0x1a2b58</span>: bl   <span class="func">HttpClient.post</span>
+<span class="comment">//   }</span>
+<span class="comment">// }</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="color:var(--primary)">pp.txt - Object Pool</h3>
+      <p>Dump لكل كائن في Object Pool مع الـ offset والنوع والقيمة.</p>
+      <p>هذا الملف ذهبي لأنه يحتوي:</p>
+      <ul style="padding-right:20px;color:var(--text2)">
+        <li>جميع الـ String constants (URLs, API keys, etc)</li>
+        <li>جميع الـ Integer/Double constants</li>
+        <li>مراجع الـ Classes و Functions</li>
+        <li>Type objects و TypeArguments</li>
+        <li>Closures و Field references</li>
+      </ul>
+      <div class="code-block" style="font-size:0.78em">
+<span class="comment"># Object Pool Entries</span>
+[pp+0x0048] Obj!String "Authorization"
+[pp+0x0050] Obj!String "Bearer "
+[pp+0x0058] Obj!String "https://api.example.com"
+[pp+0x0060] Obj!Type  int
+[pp+0x0068] Obj!Function LoginService.login
+[pp+0x0070] Obj!Class  UserModel
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="color:var(--purple)">objs.txt - Objects Dump</h3>
+      <p>Dump تفصيلي (nested) لكل Object مع حقوله وقيمه المتداخلة. يعرض الكائنات بشكل هرمي.</p>
+      <div class="code-block" style="font-size:0.78em">
+<span class="comment"># Nested Object Dump</span>
+Obj!_AppConfig {
+  baseUrl: "https://api.example.com"
+  apiKey: "sk_live_abc123..."
+  timeout: 30000
+  headers: Map {
+    "Content-Type": "application/json"
+    "X-App-Version": "2.1.0"
+  }
+}
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="color:var(--warning)">blutter_frida.js - Frida Script</h3>
+      <p>Script Frida جاهز مع:</p>
+      <ul style="padding-right:20px;color:var(--text2)">
+        <li>جميع Class IDs و sizes</li>
+        <li>Field offsets لكل class</li>
+        <li>Helper functions لقراءة Dart objects</li>
+        <li>دعم Compressed Pointers</li>
+        <li>Template جاهز للـ hooking</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>ida_script/ - IDA Pro Scripts</h3>
+    <p>مجلد يحتوي scripts لـ IDA Pro لاستيراد جميع الرموز المكتشفة. يتضمن:</p>
+    <ul style="padding-right:20px;color:var(--text2)">
+      <li>أسماء الدوال مع عناوينها</li>
+      <li>Struct definitions للـ classes</li>
+      <li>تعريفات الأنواع</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Section 7: Source Code -->
+<div class="section" id="source">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--purple-bg);color:var(--purple)">08</div>
+    <h2>تحليل الكود المصدري التفصيلي</h2>
+  </div>
+
+  <div class="card">
+    <h3>main.cpp - نقطة الدخول</h3>
+    <p>الملف الرئيسي الذي يربط كل المكونات. تسلسل العمل:</p>
+    <div class="code-block">
+<span class="comment">// 1. إنشاء DartApp وتحميل libapp.so</span>
+DartApp app{ libappPath.c_str() };
+
+<span class="comment">// 2. الدخول في Dart scope وتحميل المعلومات</span>
+app.EnterScope();
+app.LoadInfo();    <span class="comment">// يقرأ Class Table + Object Pool + Functions</span>
+app.ExitScope();
+
+<span class="comment">// 3. تحليل الكود (ARM64 -> IL)</span>
+app.EnterScope();
+CodeAnalyzer analyzer{ app };
+analyzer.AnalyzeAll();  <span class="comment">// يحلل كل function</span>
+
+<span class="comment">// 4. تصدير النتائج</span>
+DartDumper dumper{ app };
+dumper.DumpObjectPool("pp.txt");     <span class="comment">// Object Pool</span>
+dumper.DumpObjects("objs.txt");      <span class="comment">// Objects nested dump</span>
+dumper.DumpCode("asm/");             <span class="comment">// Assembly with symbols</span>
+dumper.Dump4Ida("ida_script/");      <span class="comment">// IDA Pro scripts</span>
+
+<span class="comment">// 5. توليد Frida script</span>
+FridaWriter fwriter{ app };
+fwriter.Create("blutter_frida.js");
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>DartApp - النواة (الأهم)</h3>
+    <p>هذا هو القلب النابض لـ Blutter. يحتوي على:</p>
+
+    <div class="info-box purple">
+      <div class="info-box-content">
+        <strong>البيانات الداخلية الرئيسية:</strong>
+        <ul style="padding-right:20px;margin-top:5px">
+          <li><code>lib_base</code> - عنوان قاعدة تحميل libapp.so</li>
+          <li><code>heap_base_</code> - عنوان بداية Dart Heap</li>
+          <li><code>ppool</code> - مؤشر إلى Object Pool</li>
+          <li><code>libs</code> - قائمة جميع المكتبات (<code>vector&lt;DartLibrary*&gt;</code>)</li>
+          <li><code>classes</code> - قائمة جميع الـ classes بالـ CID (<code>vector&lt;DartClass*&gt;</code>)</li>
+          <li><code>functions</code> - خريطة من address إلى function (<code>unordered_map</code>)</li>
+          <li><code>stubs</code> - خريطة من address إلى stub</li>
+          <li><code>staticFields</code> - خريطة الحقول الثابتة</li>
+          <li><code>typeDb</code> - قاعدة بيانات الأنواع</li>
+        </ul>
+      </div>
+    </div>
+
+    <p style="margin-top:15px">الـ CIDs (Class IDs) المدمجة التي يتتبعها:</p>
+    <div class="grid-3">
+      <div class="info-box blue" style="margin:4px 0"><div class="info-box-content"><code>dartIntCid</code> - Integer</div></div>
+      <div class="info-box blue" style="margin:4px 0"><div class="info-box-content"><code>dartDoubleCid</code> - Double</div></div>
+      <div class="info-box blue" style="margin:4px 0"><div class="info-box-content"><code>dartStringCid</code> - String</div></div>
+      <div class="info-box blue" style="margin:4px 0"><div class="info-box-content"><code>dartBoolCid</code> - Bool</div></div>
+      <div class="info-box blue" style="margin:4px 0"><div class="info-box-content"><code>dartListCid</code> - List</div></div>
+      <div class="info-box blue" style="margin:4px 0"><div class="info-box-content"><code>dartMapCid</code> - Map</div></div>
+      <div class="info-box blue" style="margin:4px 0"><div class="info-box-content"><code>dartSetCid</code> - Set</div></div>
+      <div class="info-box blue" style="margin:4px 0"><div class="info-box-content"><code>dartFutureCid</code> - Future</div></div>
+      <div class="info-box blue" style="margin:4px 0"><div class="info-box-content"><code>dartRecordCid</code> - Record (3.0+)</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>CodeAnalyzer - تحليل ARM64</h3>
+    <p>يحول ARM64 machine code إلى تمثيل وسيط (IL) قابل للفهم:</p>
+
+    <div class="info-box green">
+      <div class="info-box-content">
+        <strong>AnalyzedFnData يحتوي:</strong>
+        <ul style="padding-right:20px;margin-top:5px">
+          <li><code>asmTexts</code> - ARM64 instructions مع annotations</li>
+          <li><code>stackSize</code> - حجم الـ stack frame</li>
+          <li><code>params</code> - المعاملات المكتشفة (FnParams)</li>
+          <li><code>il_insns</code> - الـ IL instructions المولدة</li>
+          <li><code>returnType</code> - نوع القيمة المرجعة</li>
+          <li><code>state</code> - حالة الـ registers والـ local variables</li>
+        </ul>
+      </div>
+    </div>
+
+    <p style="margin-top:10px">كل <code>AsmText</code> يحمل معلومات إضافية:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>DataType</th><th>الوصف</th></tr></thead>
+        <tbody>
+          <tr><td><code>ThreadOffset</code></td><td>وصول إلى Thread object (مثل Stack limit, Top of heap)</td></tr>
+          <tr><td><code>PoolOffset</code></td><td>وصول إلى Object Pool entry (ثابت أو reference)</td></tr>
+          <tr><td><code>Boolean</code></td><td>قيمة boolean</td></tr>
+          <tr><td><code>Call</code></td><td>استدعاء function أو stub</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Section 8: Pipeline -->
+<div class="section" id="pipeline">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--success-bg);color:var(--success)">09</div>
+    <h2>خط أنابيب التحليل الكامل</h2>
+  </div>
+
+  <div class="card">
+    <h3>Python Pipeline (الطبقة العليا)</h3>
+    <p>ملف <code>blutter.py</code> ينسق كل العملية:</p>
+
+    <div class="code-block">
+<span class="comment"># blutter.py - التسلسل الكامل</span>
+
+<span class="comment"># 1. إذا كان المدخل APK، استخرج الـ libs</span>
+<span class="keyword">if</span> indir.endswith(<span class="string">".apk"</span>):
+    libapp, libflutter = extract_libs_from_apk(indir, tmp_dir)
+
+<span class="comment"># 2. اكتشف معلومات Dart من الملفات</span>
+<span class="comment">#    extract_dart_info.py يقرأ:</span>
+<span class="comment">#    - _kDartVmSnapshotData symbol -> snapshot_hash + flags</span>
+<span class="comment">#    - libflutter.so .rodata -> engine_id + dart_version</span>
+dart_info = get_dart_lib_info(libapp, libflutter)
+<span class="comment"># Output: "Dart version: 3.4.2, Snapshot: abc123..., Target: android arm64"</span>
+<span class="comment"># Output: "flags: compressed-pointers null-safety"</span>
+
+<span class="comment"># 3. تحقق إذا كان الـ executable موجود</span>
+<span class="comment">#    الاسم: blutter_dartvm3.4.2_android_arm64[_no-compressed-ptrs][_no-analysis]</span>
+<span class="keyword">if</span> <span class="keyword">not</span> os.path.isfile(blutter_file):
+    <span class="comment"># 3a. تحقق من وجود مكتبة Dart المجمعة</span>
+    <span class="keyword">if</span> <span class="keyword">not</span> os.path.isfile(dartlib_file):
+        <span class="comment"># dartvm_fetch_build.py:</span>
+        <span class="comment">#   - git sparse-checkout dart SDK (runtime + tools فقط)</span>
+        <span class="comment">#   - cmake + ninja لبناء static library</span>
+        fetch_and_build(dart_info)
+
+    <span class="comment"># 3b. بناء Blutter executable</span>
+    <span class="comment">#   - cmake + ninja مع macros التوافق</span>
+    cmake_blutter(input)
+
+<span class="comment"># 4. تشغيل Blutter executable</span>
+subprocess.run([blutter_file, <span class="string">'-i'</span>, libapp, <span class="string">'-o'</span>, outdir])
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Compatibility Macros</h3>
+    <p>Blutter يدعم إصدارات Dart متعددة عبر فحص ملفات الـ header وتحديد macros التوافق:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Macro</th><th>الفحص</th><th>الغرض</th></tr></thead>
+        <tbody>
+          <tr><td><code>OLD_MAP_SET_NAME</code></td><td>LinkedHashMap vs HashMap</td><td>إعادة تسمية Map/Set في إصدارات جديدة</td></tr>
+          <tr><td><code>HAS_TYPE_REF</code></td><td>V(TypeRef) في class_id.h</td><td>TypeRef موجود في Dart < 3.1</td></tr>
+          <tr><td><code>HAS_RECORD_TYPE</code></td><td>V(RecordType) في class_id.h</td><td>Record types جديدة في Dart 3.0+</td></tr>
+          <tr><td><code>HAS_SHARED_CLASS_TABLE</code></td><td>SharedClassTable في class_table.h</td><td>تم دمج ClassTable في إصدارات جديدة</td></tr>
+          <tr><td><code>NO_INIT_LATE_STATIC_FIELD</code></td><td>InitLateStaticField stub</td><td>Stub غير موجود في إصدارات قديمة</td></tr>
+          <tr><td><code>NO_METHOD_EXTRACTOR_STUB</code></td><td>method extractor في object_store</td><td>تبسيط method extractors</td></tr>
+          <tr><td><code>UNIFORM_INTEGER_ACCESS</code></td><td>AsTruncatedInt64Value()</td><td>إعادة هيكلة Integer access</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Section 9: Frida -->
+<div class="section" id="frida">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--warning-bg);color:var(--warning)">10</div>
+    <h2>Frida Script المولد</h2>
+  </div>
+
+  <div class="card">
+    <h3>هيكل blutter_frida.js</h3>
+    <p>الـ script المولد يحتوي على ثلاثة أقسام رئيسية:</p>
+
+    <div class="info-box purple">
+      <div class="info-box-content">
+        <strong>1. Template Section (ثابت)</strong>
+        يأتي من <code>scripts/frida.template.js</code> ويحتوي:
+        <ul style="padding-right:20px;margin-top:5px">
+          <li><code>tryLoadLibapp()</code> - ينتظر تحميل libapp.so</li>
+          <li><code>init(context)</code> - يقرأ HeapAddress من register x28</li>
+          <li><code>getArg(context, idx)</code> - يقرأ argument من الـ stack</li>
+          <li><code>getTaggedObjectValue()</code> - يحول tagged pointer إلى قيمة</li>
+          <li><code>getObjectValue()</code> - يقرأ قيمة object حسب CID</li>
+          <li><code>getDartString/Bool/Int/Double/Array()</code> - قراءة أنواع محددة</li>
+          <li><code>decompressPointer()</code> - فك ضغط compressed pointer</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="info-box green" style="margin-top:10px">
+      <div class="info-box-content">
+        <strong>2. Classes Section (مولد)</strong>
+        يحتوي تعريفات كل class مع:
+        <ul style="padding-right:20px;margin-top:5px">
+          <li><code>id</code> - Class ID</li>
+          <li><code>sid</code> - Super class ID</li>
+          <li><code>size</code> - حجم الـ instance</li>
+          <li><code>argOffset</code> - موقع type arguments</li>
+          <li><code>fbitmap</code> - Unboxed fields bitmap</li>
+          <li><code>valOffset/lenOffset/dataOffset</code> - لأنواع مثل String, Array</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="info-box blue" style="margin-top:10px">
+      <div class="info-box-content">
+        <strong>3. Hook Template</strong>
+        مثال جاهز للاستخدام في <code>onLibappLoaded()</code>:
+      </div>
+    </div>
+
+    <div class="code-block" style="margin-top:10px">
+<span class="comment">// مثال: Hook على function معينة</span>
+<span class="keyword">function</span> <span class="func">onLibappLoaded</span>() {
+    <span class="comment">// عنوان الدالة من asm/ output</span>
+    <span class="keyword">const</span> fn_addr = <span class="string">0x1a2b4c</span>;
+
+    Interceptor.attach(libapp.add(fn_addr), {
+        <span class="func">onEnter</span>: <span class="keyword">function</span>() {
+            <span class="comment">// تهيئة HeapAddress</span>
+            init(<span class="keyword">this</span>.context);
+
+            <span class="comment">// قراءة أول argument</span>
+            <span class="keyword">let</span> objPtr = getArg(<span class="keyword">this</span>.context, 0);
+
+            <span class="comment">// تحويله إلى قيمة قابلة للقراءة</span>
+            <span class="keyword">const</span> [tptr, cls, values] = getTaggedObjectValue(objPtr);
+
+            console.log(<span class="string">`${cls.name} =`</span>, JSON.stringify(values, <span class="keyword">null</span>, 2));
+        }
+    });
+}
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Dart Object Memory Layout</h3>
+    <p>فهم كيف يخزن Dart الكائنات في الذاكرة (ضروري لـ Frida):</p>
+    <div class="code-block">
+<span class="comment">// Tagged Object Pointer (Compressed - 4 bytes)</span>
+<span class="comment">// Bit 0 = 1 → Heap Object (subtract 1 to get real pointer)</span>
+<span class="comment">// Bit 0 = 0 → Smi (shift right 1 to get value)</span>
+
+<span class="comment">// Object Header (first 8 bytes):</span>
+<span class="comment">// Bits [12:23]  → Class ID (CID)</span>
+<span class="comment">// Bits [8:11]   → Size tag (0 = variable size)</span>
+<span class="comment">// Bits [32:63]  → Hash / Identity</span>
+
+<span class="comment">// Compressed Pointer Decompression:</span>
+<span class="comment">// real_ptr = heap_base + compressed_ptr (sign-extended 32-bit)</span>
+<span class="comment">// heap_base = Thread.x28 << 32</span>
+
+<span class="comment">// String Layout:</span>
+<span class="comment">// [header:8] [length_smi:4] [hash:4] [data:N]</span>
+<span class="comment">// length = length_smi >> 1  (Smi encoding)</span>
+
+<span class="comment">// Array Layout:</span>
+<span class="comment">// [header:8] [type_args:4] [length_smi:4] [element_0:4] [element_1:4] ...</span>
+    </div>
+  </div>
+</div>
+
+<!-- Section 10: Practical -->
+<div class="section" id="practical">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--success-bg);color:var(--success)">11</div>
+    <h2>التطبيق العملي - أمثلة واقعية</h2>
+  </div>
+
+  <div class="card">
+    <h3>المثال 1: استخراج API Keys و URLs</h3>
+    <div class="code-block">
+<span class="comment"># بعد تشغيل Blutter، ابحث في pp.txt عن URLs و secrets</span>
+<span class="cmd">grep</span> -i <span class="string">"https\|api\|key\|secret\|token\|password"</span> output/pp.txt
+
+<span class="comment"># أو ابحث في asm/ عن patterns معينة</span>
+<span class="cmd">grep</span> -r <span class="string">"Authorization\|Bearer\|api_key"</span> output/asm/
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>المثال 2: تحليل Login Flow</h3>
+    <div class="code-block">
+<span class="comment"># 1. ابحث عن classes متعلقة بالـ login</span>
+<span class="cmd">grep</span> -r <span class="string">"login\|auth\|signin"</span> output/asm/ --include="*.txt" -l
+
+<span class="comment"># 2. افتح الملف وابحث عن الـ function</span>
+<span class="comment"># ستجد شيء مثل:</span>
+<span class="comment">//   _ login(String email, String password) async {</span>
+<span class="comment">//     0x1a2b4c: ldr x0, [PP, #0x1f8]  ; "https://api.example.com/auth/login"</span>
+
+<span class="comment"># 3. استخدم العنوان في Frida لاعتراض الاستدعاء</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>المثال 3: تجاوز Premium Check</h3>
+    <div class="code-block">
+<span class="comment"># ابحث عن premium/subscription checks</span>
+<span class="cmd">grep</span> -r <span class="string">"isPremium\|isSubscribed\|hasPurchased\|isProUser"</span> output/asm/
+
+<span class="comment"># النتيجة قد تكون:</span>
+<span class="comment">//   bool get isPremium {</span>
+<span class="comment">//     0x2a3b4c: ...</span>
+
+<span class="comment"># Hook بـ Frida لإرجاع true دائماً:</span>
+Interceptor.attach(libapp.add(<span class="string">0x2a3b4c</span>), {
+    onLeave: <span class="keyword">function</span>(retval) {
+        <span class="comment">// True object address in Dart</span>
+        retval.replace(ptr(<span class="string">"0x..."</span>));
+    }
+});
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>المثال 4: الدمج مع Ghidra</h3>
+    <div class="code-block">
+<span class="comment"># 1. افتح libapp.so في Ghidra</span>
+<span class="comment"># 2. استورد الرموز من ida_script/ (يمكن تحويلها لـ Ghidra format)</span>
+<span class="comment"># 3. الآن كل function لها اسم واضح في Ghidra</span>
+<span class="comment"># 4. استخدم Ghidra decompiler لرؤية pseudo-code</span>
+    </div>
+  </div>
+</div>
+
+<!-- Section 11: Advanced -->
+<div class="section" id="advanced">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--danger-bg);color:var(--danger)">12</div>
+    <h2>مواضيع متقدمة</h2>
+  </div>
+
+  <div class="card">
+    <h3>التعامل مع Obfuscated Apps</h3>
+    <p>عندما يستخدم المطور <code>--obfuscate</code> flag:</p>
+    <ul style="padding-right:20px;color:var(--text2)">
+      <li>أسماء الـ classes و functions تصبح عشوائية (مثل <code>aB</code>, <code>cD</code>)</li>
+      <li>لكن <strong>Blutter لا يزال يستطيع</strong> استخراج:</li>
+      <li style="padding-right:20px">- هيكل الـ classes (fields, methods, inheritance)</li>
+      <li style="padding-right:20px">- String constants في Object Pool (URLs, keys)</li>
+      <li style="padding-right:20px">- Flow الكود والـ call graph</li>
+      <li style="padding-right:20px">- أسماء الـ Dart SDK classes (لا تتأثر بالـ obfuscation)</li>
+    </ul>
+
+    <div class="info-box yellow" style="margin-top:10px">
+      <div class="info-box-icon">&#128161;</div>
+      <div class="info-box-content">
+        الـ obfuscation في Flutter يغير فقط أسماء الـ user code. أسماء مثل <code>HttpClient</code>, <code>SharedPreferences</code>, <code>setState</code> تبقى كما هي لأنها من SDK.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>إصدارات Dart والتوافق</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>إصدار Dart</th><th>ملاحظات</th></tr></thead>
+        <tbody>
+          <tr><td><code>< 2.15</code></td><td>يعمل مع <code>--no-analysis</code> فقط</td></tr>
+          <tr><td><code>2.15 - 2.19</code></td><td>دعم كامل</td></tr>
+          <tr><td><code>3.0+</code></td><td>دعم RecordType الجديد</td></tr>
+          <tr><td><code>3.1+</code></td><td>إزالة TypeRef</td></tr>
+          <tr><td><code>3.6+</code></td><td>تغييرات في .gitignore</td></tr>
+          <tr><td><code>3.8+</code></td><td>تحتاج patch لـ RUNTIME_FUNCTION على Windows</td></tr>
+          <tr><td><code>3.10+</code></td><td>تغيير في UnlinkedCall argument (tagged object)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Visual Studio Solution للتطوير</h3>
+    <div class="code-block">
+<span class="comment"># توليد VS Solution لتطوير/تعديل Blutter</span>
+<span class="cmd">python</span> blutter.py <span class="path">path\to\lib\arm64-v8a</span> <span class="path">build\vs</span> <span class="flag">--vs-sln</span>
+
+<span class="comment"># يدعم Visual Studio 2022 (v17) و 2026 (v18)</span>
+<span class="comment"># يجب التشغيل من "x64 Native Tools Command Prompt"</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>هيكل المجلدات</h3>
+    <div class="code-block">
+blutter/
+  &#9500;&#9472;&#9472; bin/           <span class="comment"># Blutter executables لكل إصدار Dart</span>
+  &#9474;   &#9492;&#9472;&#9472; blutter_dartvm3.4.2_android_arm64[.exe]
+  &#9500;&#9472;&#9472; blutter/       <span class="comment"># C++ source code</span>
+  &#9474;   &#9492;&#9472;&#9472; src/       <span class="comment"># جميع ملفات .cpp و .h</span>
+  &#9500;&#9472;&#9472; build/         <span class="comment"># مشاريع البناء (يمكن حذفها)</span>
+  &#9500;&#9472;&#9472; dartsdk/       <span class="comment"># Dart SDK checkouts (يمكن حذفها)</span>
+  &#9500;&#9472;&#9472; external/      <span class="comment"># مكتبات خارجية (Windows فقط)</span>
+  &#9500;&#9472;&#9472; packages/      <span class="comment"># مكتبات Dart VM المبنية</span>
+  &#9474;   &#9500;&#9472;&#9472; include/   <span class="comment"># Header files</span>
+  &#9474;   &#9492;&#9472;&#9472; lib/       <span class="comment"># Static libraries (.a / .lib)</span>
+  &#9500;&#9472;&#9472; scripts/       <span class="comment"># Python scripts مساعدة</span>
+  &#9500;&#9472;&#9472; blutter.py     <span class="comment"># Script الرئيسي</span>
+  &#9500;&#9472;&#9472; dartvm_fetch_build.py  <span class="comment"># تنزيل وبناء Dart VM</span>
+  &#9492;&#9472;&#9472; extract_dart_info.py   <span class="comment"># استخراج معلومات Dart</span>
+    </div>
+  </div>
+</div>
+
+<!-- Section 12: Troubleshoot -->
+<div class="section" id="troubleshoot">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--warning-bg);color:var(--warning)">13</div>
+    <h2>حل المشاكل الشائعة</h2>
+  </div>
+
+  <div class="accordion">
+    <div class="acc-header" onclick="toggleAcc(this)">
+      <span style="color:var(--danger)">&#10060;</span> خطأ: "Cannot find libapp file"
+      <span class="acc-arrow">&#9654;</span>
+    </div>
+    <div class="acc-body">
+      <p>تأكد أنك تمرر المسار الصحيح لمجلد <code>arm64-v8a</code> الذي يحتوي على <code>libapp.so</code> و <code>libflutter.so</code>.</p>
+      <div class="code-block">
+<span class="comment"># صحيح:</span>
+python3 blutter.py extracted/lib/<span class="string">arm64-v8a</span> output
+
+<span class="comment"># خطأ:</span>
+python3 blutter.py extracted/lib/ output  <span class="comment"># ناقص arm64-v8a</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion">
+    <div class="acc-header" onclick="toggleAcc(this)">
+      <span style="color:var(--danger)">&#10060;</span> خطأ في البناء على Windows
+      <span class="acc-arrow">&#9654;</span>
+    </div>
+    <div class="acc-body">
+      <p>تأكد أنك تستخدم <strong>"x64 Native Tools Command Prompt for VS"</strong> وليس CMD العادي. وتأكد من تشغيل <code>python scripts\init_env_win.py</code> أولاً.</p>
+    </div>
+  </div>
+
+  <div class="accordion">
+    <div class="acc-header" onclick="toggleAcc(this)">
+      <span style="color:var(--danger)">&#10060;</span> إصدار Dart غير مدعوم
+      <span class="acc-arrow">&#9654;</span>
+    </div>
+    <div class="acc-body">
+      <p>جرب <code>--no-analysis</code> للإصدارات القديمة، أو <code>git pull</code> ثم <code>--rebuild</code> لتحديث Blutter:</p>
+      <div class="code-block">
+git pull
+python3 blutter.py path/to/arm64-v8a output <span class="flag">--rebuild</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion">
+    <div class="acc-header" onclick="toggleAcc(this)">
+      <span style="color:var(--danger)">&#10060;</span> البناء يستغرق وقتاً طويلاً
+      <span class="acc-arrow">&#9654;</span>
+    </div>
+    <div class="acc-body">
+      <p>أول بناء لإصدار Dart جديد طبيعي أن يستغرق 10-30 دقيقة. المشاريع اللاحقة لنفس الإصدار ستكون فورية. يمكنك حذف <code>build/</code> و <code>dartsdk/</code> بعد البناء لتوفير المساحة.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Section 13: Comparison -->
+<div class="section" id="comparison">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--primary-bg);color:var(--primary)">14</div>
+    <h2>المقارنة مع الأدوات الأخرى</h2>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>الميزة</th><th>Blutter</th><th>reFlutter</th><th>Ghidra (فقط)</th><th>darter</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>استخراج الرموز</strong></td>
+          <td><span class="tag tag-green">كامل</span></td>
+          <td><span class="tag tag-yellow">محدود</span></td>
+          <td><span class="tag tag-red">لا</span></td>
+          <td><span class="tag tag-yellow">جزئي</span></td>
+        </tr>
+        <tr>
+          <td><strong>Object Pool dump</strong></td>
+          <td><span class="tag tag-green">كامل + nested</span></td>
+          <td><span class="tag tag-red">لا</span></td>
+          <td><span class="tag tag-red">لا</span></td>
+          <td><span class="tag tag-yellow">جزئي</span></td>
+        </tr>
+        <tr>
+          <td><strong>Code Analysis</strong></td>
+          <td><span class="tag tag-green">ARM64 IL</span></td>
+          <td><span class="tag tag-red">لا</span></td>
+          <td><span class="tag tag-green">Decompiler</span></td>
+          <td><span class="tag tag-red">لا</span></td>
+        </tr>
+        <tr>
+          <td><strong>Frida Script</strong></td>
+          <td><span class="tag tag-green">Auto-generated</span></td>
+          <td><span class="tag tag-yellow">Template</span></td>
+          <td><span class="tag tag-red">لا</span></td>
+          <td><span class="tag tag-red">لا</span></td>
+        </tr>
+        <tr>
+          <td><strong>SSL Bypass</strong></td>
+          <td><span class="tag tag-red">لا (غير مباشر)</span></td>
+          <td><span class="tag tag-green">نعم</span></td>
+          <td><span class="tag tag-red">لا</span></td>
+          <td><span class="tag tag-red">لا</span></td>
+        </tr>
+        <tr>
+          <td><strong>دعم الإصدارات</strong></td>
+          <td><span class="tag tag-green">تلقائي لكل إصدار</span></td>
+          <td><span class="tag tag-yellow">إصدارات محددة</span></td>
+          <td><span class="tag tag-green">أي binary</span></td>
+          <td><span class="tag tag-yellow">محدود</span></td>
+        </tr>
+        <tr>
+          <td><strong>السعر</strong></td>
+          <td><span class="tag tag-green">مجاني (MIT)</span></td>
+          <td><span class="tag tag-green">مجاني</span></td>
+          <td><span class="tag tag-green">مجاني</span></td>
+          <td><span class="tag tag-green">مجاني</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-box blue">
+    <div class="info-box-icon">&#128640;</div>
+    <div class="info-box-content">
+      <strong>أفضل سير عمل (Workflow):</strong>
+      استخدم <strong>Blutter</strong> لاستخراج الرموز والـ Object Pool، ثم <strong>Ghidra</strong> مع الرموز المستوردة للتحليل العميق، ثم <strong>Frida</strong> (مع الـ script المولد) للاعتراض والتعديل في وقت التشغيل. استخدم <strong>reFlutter</strong> إذا احتجت SSL bypass.
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="text-align:center;padding:40px 20px;color:var(--text4);font-size:0.85em;border-top:1px solid var(--border);margin-top:40px">
+  <p style="margin-bottom:5px"><strong>Blutter Complete Guide</strong> - Flutter Reverse Engineering</p>
+  <p>Based on <a href="https://github.com/worawit/blutter" style="color:var(--accent);text-decoration:none">worawit/blutter</a> source code analysis</p>
+  <p style="margin-top:10px;font-size:0.85em">MIT License | 2024-2026</p>
+</div>
+
+</div><!-- container -->
+
+<script>
+function toggleAcc(el){
+  const body=el.nextElementSibling;
+  const arrow=el.querySelector('.acc-arrow');
+  body.classList.toggle('open');
+  arrow&&arrow.classList.toggle('open');
+}
+
+// Smooth scroll for nav links
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    const target=document.querySelector(a.getAttribute('href'));
+    if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+</script>
+</body>
+</html>
