@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/", "destination": "/Android_RE_Tracker.html" },
-    { "source": "/blutter", "destination": "/Blutter_Guide.html" }
+    { "source": "/blutter", "destination": "/Blutter_Guide.html" },
+    { "source": "/miqat", "destination": "/Miqat_RE_Commands.html" }
   ]
 }

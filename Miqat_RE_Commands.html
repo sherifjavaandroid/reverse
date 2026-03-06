@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Miqat APK - Flutter RE Commands Guide</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='12' fill='%231a1a2e'/><text x='50' y='62' text-anchor='middle' fill='%2300ff41' font-family='monospace' font-size='40' font-weight='bold'>&gt;_</text></svg>">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f172a;--bg2:#1e293b;--bg3:#334155;--border:#475569;--primary:#38bdf8;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--purple:#a78bfa;--pink:#f472b6;--orange:#fb923c;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--cyan:#22d3ee}
+body{background:var(--bg);color:var(--text);font-family:'Tajawal','Inter',sans-serif;line-height:1.8;font-size:15px}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+
+.hero{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0f172a 100%);padding:40px 20px;text-align:center;border-bottom:1px solid var(--border)}
+.hero h1{font-size:2.2em;font-weight:900;margin-bottom:8px;background:linear-gradient(90deg,var(--primary),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--text2);font-size:0.95em}
+.hero-info{display:flex;gap:15px;justify-content:center;flex-wrap:wrap;margin-top:15px}
+.hero-tag{padding:4px 14px;border-radius:6px;font-size:0.78em;font-family:'JetBrains Mono',monospace;background:rgba(56,189,248,0.1);color:var(--primary);border:1px solid rgba(56,189,248,0.2)}
+
+.container{max-width:1000px;margin:0 auto;padding:20px}
+
+.nav{position:sticky;top:0;z-index:100;background:rgba(15,23,42,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:10px 20px}
+.nav-inner{max-width:1000px;margin:0 auto;display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.nav a{padding:5px 12px;border-radius:6px;color:var(--text3);text-decoration:none;font-size:0.75em;font-weight:500;transition:.2s;font-family:'JetBrains Mono',monospace}
+.nav a:hover{background:rgba(56,189,248,0.1);color:var(--primary)}
+
+.section{margin:30px 0}
+.section-title{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.section-num{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85em;flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.section-title h2{font-size:1.25em;font-weight:800}
+
+.cmd-block{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin:12px 0;overflow:hidden}
+.cmd-header{padding:10px 16px;background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;cursor:pointer}
+.cmd-header h3{font-size:0.88em;font-weight:600;flex:1}
+.cmd-tag{padding:2px 8px;border-radius:4px;font-size:0.68em;font-family:'JetBrains Mono',monospace}
+.cmd-body{padding:16px;direction:ltr;text-align:left}
+
+pre{background:var(--bg);border-radius:8px;padding:14px;margin:8px 0;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:0.82em;line-height:1.8;border:1px solid rgba(71,85,105,0.4)}
+.c{color:#6b7280}
+.k{color:#93c5fd}
+.s{color:#86efac}
+.f{color:#fbbf24}
+.p{color:#67e8f9}
+.r{color:#f87171}
+.v{color:#c4b5fd}
+.o{color:#fb923c}
+
+.note{padding:12px 16px;border-radius:8px;margin:10px 0;font-size:0.88em;display:flex;align-items:flex-start;gap:10px}
+.note.info{background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);color:var(--primary)}
+.note.warn{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--yellow)}
+.note.success{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green)}
+.note.danger{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.note-icon{font-size:1.2em;flex-shrink:0}
+
+.desc{color:var(--text2);font-size:0.9em;margin:6px 0 12px;padding:0 4px}
+
+code{background:var(--bg2);color:var(--cyan);padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.85em;direction:ltr}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:12px 0}
+.grid-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px}
+.grid-card h4{font-size:0.9em;margin-bottom:6px;color:var(--primary)}
+.grid-card p{font-size:0.82em;color:var(--text2)}
+
+.copy-btn{padding:3px 10px;border-radius:4px;background:rgba(56,189,248,0.1);color:var(--primary);border:1px solid rgba(56,189,248,0.2);cursor:pointer;font-size:0.7em;font-family:'JetBrains Mono',monospace;transition:.2s}
+.copy-btn:hover{background:rgba(56,189,248,0.2)}
+
+.app-info{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;margin:20px 0}
+.app-info h3{color:var(--green);margin-bottom:12px;font-size:1.05em}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.info-item{padding:8px 12px;background:var(--bg);border-radius:6px;border:1px solid rgba(71,85,105,0.3)}
+.info-item .label{font-size:0.72em;color:var(--text3);font-family:'JetBrains Mono',monospace;text-transform:uppercase}
+.info-item .value{font-size:0.9em;color:var(--text);font-weight:600;margin-top:2px}
+
+@media(max-width:768px){
+  .hero h1{font-size:1.5em}
+  .grid{grid-template-columns:1fr}
+  .info-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Miqat APK - Flutter RE Commands</h1>
+  <p>جميع الأوامر اللي تحتاجها لتحليل تطبيق Flutter من الصفر للاحتراف</p>
+  <div class="hero-info">
+    <span class="hero-tag">Flutter 3.8.0</span>
+    <span class="hero-tag">Dart 3.8.0 (stable)</span>
+    <span class="hero-tag">ARM64</span>
+    <span class="hero-tag">Compressed Pointers</span>
+    <span class="hero-tag">com.example.miqatlastuserapp</span>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#s1">1-Extract</a>
+    <a href="#s2">2-Analyze</a>
+    <a href="#s3">3-Blutter</a>
+    <a href="#s4">4-Strings</a>
+    <a href="#s5">5-Frida Setup</a>
+    <a href="#s6">6-Frida Hooks</a>
+    <a href="#s7">7-SSL Bypass</a>
+    <a href="#s8">8-Ghidra</a>
+    <a href="#s9">9-Patching</a>
+    <a href="#s10">10-Network</a>
+    <a href="#s11">11-Storage</a>
+    <a href="#s12">12-Automation</a>
+  </div>
+</div>
+
+<!-- App Info -->
+<div class="container">
+
+<div class="app-info">
+  <h3>معلومات التطبيق المستخرجة</h3>
+  <div class="info-grid">
+    <div class="info-item"><div class="label">Package Name</div><div class="value">com.example.miqatlastuserapp</div></div>
+    <div class="info-item"><div class="label">Version</div><div class="value">1.0.0</div></div>
+    <div class="info-item"><div class="label">Dart Version</div><div class="value">3.8.0 (stable)</div></div>
+    <div class="info-item"><div class="label">Base API</div><div class="value" style="color:var(--cyan)">https://app-api.miqatinn.com</div></div>
+    <div class="info-item"><div class="label">Architecture</div><div class="value">ARM64 + ARM32 + x86 + x86_64</div></div>
+    <div class="info-item"><div class="label">Languages</div><div class="value">Arabic, English, Turkish</div></div>
+    <div class="info-item"><div class="label">Pattern</div><div class="value">Clean Architecture + BLoC/Cubit</div></div>
+    <div class="info-item"><div class="label">libapp.so</div><div class="value">9.6 MB</div></div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 1: EXTRACT APK -->
+<!-- ============================================ -->
+<div class="section" id="s1">
+  <div class="section-title">
+    <div class="section-num" style="background:rgba(56,189,248,0.15);color:var(--primary)">01</div>
+    <h2>استخراج وفك APK</h2>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>فك ضغط APK مباشرة</h3>
+      <span class="cmd-tag" style="background:rgba(74,222,128,0.1);color:var(--green)">BASIC</span>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># طريقة 1: unzip مباشر (بدون فك تشفير الـ manifest)</span>
+<span class="k">mkdir</span> miqat_extracted
+<span class="k">unzip</span> <span class="s">"miqat user.apk"</span> -d miqat_extracted
+
+<span class="c"># طريقة 2: فك بـ 7z (يدعم ملفات أكبر)</span>
+<span class="k">7z</span> x <span class="s">"miqat user.apk"</span> -o<span class="p">miqat_extracted</span></pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>فك APK بـ apktool (يفك تشفير XML + resources)</h3>
+      <span class="cmd-tag" style="background:rgba(251,191,36,0.1);color:var(--yellow)">RECOMMENDED</span>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># فك كامل مع فك تشفير الـ resources و manifest</span>
+<span class="k">apktool</span> d <span class="s">"miqat user.apk"</span> -o miqat_decoded
+
+<span class="c"># فك بدون فك resources (أسرع - كافي لـ Flutter)</span>
+<span class="k">apktool</span> d <span class="s">"miqat user.apk"</span> -o miqat_decoded <span class="f">-r</span>
+
+<span class="c"># فك بدون فك الكود (smali)</span>
+<span class="k">apktool</span> d <span class="s">"miqat user.apk"</span> -o miqat_decoded <span class="f">-s</span>
+
+<span class="c"># فك مع force overwrite</span>
+<span class="k">apktool</span> d <span class="s">"miqat user.apk"</span> -o miqat_decoded <span class="f">-f</span></pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>استكشاف هيكل الملفات المستخرجة</h3>
+      <span class="cmd-tag" style="background:rgba(56,189,248,0.1);color:var(--primary)">EXPLORE</span>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># عرض هيكل المجلد</span>
+<span class="k">ls</span> -la miqat_extracted/
+<span class="k">ls</span> -la miqat_extracted/lib/
+<span class="k">ls</span> -la miqat_extracted/lib/arm64-v8a/
+
+<span class="c"># أحجام الملفات المهمة</span>
+<span class="k">ls</span> -lh miqat_extracted/lib/arm64-v8a/
+<span class="c"># libapp.so     9.6M  &lt;-- كود Dart المترجم (الهدف الرئيسي)</span>
+<span class="c"># libflutter.so  11M  &lt;-- Flutter engine</span>
+
+<span class="c"># Flutter assets</span>
+<span class="k">ls</span> miqat_extracted/assets/flutter_assets/
+<span class="k">ls</span> miqat_extracted/assets/flutter_assets/assets/
+
+<span class="c"># عرض manifest (بعد فك apktool)</span>
+<span class="k">cat</span> miqat_decoded/AndroidManifest.xml</pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>استخراج معلومات التوقيع</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># عرض معلومات التوقيع</span>
+<span class="k">keytool</span> -printcert -jarfile <span class="s">"miqat user.apk"</span>
+
+<span class="c"># أو من ملف CERT.RSA المستخرج</span>
+<span class="k">keytool</span> -printcert -file miqat_extracted/META-INF/CERT.RSA
+
+<span class="c"># التحقق من نوع التوقيع (v1/v2/v3/v4)</span>
+<span class="k">apksigner</span> verify -v <span class="s">"miqat user.apk"</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 2: ANALYZE -->
+<!-- ============================================ -->
+<div class="section" id="s2">
+  <div class="section-title">
+    <div class="section-num" style="background:rgba(74,222,128,0.15);color:var(--green)">02</div>
+    <h2>تحليل أولي (بدون Blutter)</h2>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>استخراج إصدار Dart و Flutter</h3>
+      <span class="cmd-tag" style="background:rgba(251,191,36,0.1);color:var(--yellow)">IMPORTANT</span>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># استخراج إصدار Dart من libflutter.so</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libflutter.so | <span class="k">grep</span> -E <span class="s">"^[0-9]+\.[0-9]+\.[0-9]+ \(stable\)"</span>
+<span class="c"># النتيجة: 3.8.0 (stable)</span>
+
+<span class="c"># أو بـ Python إذا ما عندك strings</span>
+<span class="k">python</span> -c <span class="s">"
+import re
+with open('miqat_extracted/lib/arm64-v8a/libflutter.so', 'rb') as f:
+    data = f.read()
+    m = re.search(rb'([\d]+\.[\d]+\.[\d]+) \((stable|beta|dev)\)', data)
+    if m: print(f'Dart: {m.group(1).decode()} ({m.group(2).decode()})')
+    hashes = re.findall(rb'\x00([a-f\d]{40})(?=\x00)', data)
+    for h in hashes: print(f'Engine: {h.decode()}')
+"</span>
+
+<span class="c"># استخراج snapshot flags من libapp.so</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">head</span> -15
+<span class="c"># النتيجة: compressed-pointers null-safety arm64 android</span></pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>استخراج URLs و API Keys و Secrets</h3>
+      <span class="cmd-tag" style="background:rgba(248,113,113,0.1);color:var(--red)">SECRETS</span>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># كل الـ URLs</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> -i <span class="s">"https\?://"</span>
+
+<span class="c"># API endpoints</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> -i <span class="s">"/api/"</span>
+
+<span class="c"># مفاتيح API</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> -iE <span class="s">"api.?key|secret|token|bearer|auth"</span>
+
+<span class="c"># مفاتيح Google</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> <span class="s">"AIza"</span>
+
+<span class="c"># مفاتيح Firebase</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> -iE <span class="s">"firebase|firestore|fcm"</span>
+
+<span class="c"># بحث عن passwords / credentials</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> -iE <span class="s">"password|credential|admin|root"</span>
+
+<span class="c"># بحث عن Base64 encoded strings (أسرار مخبأة)</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> -E <span class="s">"^[A-Za-z0-9+/]{20,}={0,2}$"</span>
+
+<span class="c"># بحث شامل بـ Python</span>
+<span class="k">python</span> -c <span class="s">"
+import re, sys
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+with open('miqat_extracted/lib/arm64-v8a/libapp.so', 'rb') as f:
+    data = f.read()
+for url in re.findall(rb'https?://[\x20-\x7e]{5,200}', data):
+    print(url.decode('ascii', errors='replace'))
+"</span></pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>استخراج بنية التطبيق (Dart files)</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># كل ملفات Dart (يكشف Clean Architecture)</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> <span class="s">"\.dart"</span> | <span class="k">sort</span> -u
+
+<span class="c"># ملفات feature معينة</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> <span class="s">"auth/"</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> <span class="s">"booking/"</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> <span class="s">"payment"</span>
+
+<span class="c"># أسماء الكلاسات</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> -E <span class="s">"Cubit|Bloc|Screen|Widget|Repository|UseCase|Model"</span>
+
+<span class="c"># Flutter packages المستخدمة</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> <span class="s">"package:"</span> | <span class="k">sort</span> -u</pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>تحليل Java/Kotlin layer بـ jadx</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># فتح في jadx-gui (واجهة رسومية)</span>
+<span class="k">jadx-gui</span> <span class="s">"miqat user.apk"</span>
+
+<span class="c"># أو سطر أوامر</span>
+<span class="k">jadx</span> <span class="s">"miqat user.apk"</span> -d miqat_jadx_output
+
+<span class="c"># بحث عن MainActivity</span>
+<span class="k">grep</span> -r <span class="s">"MainActivity"</span> miqat_jadx_output/
+
+<span class="c"># بحث عن FlutterActivity</span>
+<span class="k">grep</span> -r <span class="s">"FlutterActivity\|FlutterEngine"</span> miqat_jadx_output/</pre>
+      <div class="note info">
+        <span class="note-icon">&#128161;</span>
+        <span>jadx يحلل الطبقة Java/Kotlin فقط. في Flutter apps، الكود الأساسي في libapp.so. لكن jadx مفيد لرؤية permissions, activities, broadcast receivers, و native plugins.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>فحص Assets</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># عرض AssetManifest (كل الـ assets)</span>
+<span class="k">cat</span> miqat_extracted/assets/flutter_assets/AssetManifest.json | <span class="k">python</span> -m json.tool
+
+<span class="c"># الخطوط المستخدمة</span>
+<span class="k">cat</span> miqat_extracted/assets/flutter_assets/FontManifest.json | <span class="k">python</span> -m json.tool
+
+<span class="c"># محتوى إسلامي</span>
+<span class="k">ls</span> miqat_extracted/assets/flutter_assets/assets/islamic/ar/
+<span class="k">cat</span> miqat_extracted/assets/flutter_assets/assets/islamic/ar/hajj.txt
+
+<span class="c"># شعار التطبيق</span>
+<span class="k">ls</span> miqat_extracted/assets/flutter_assets/assets/logo/</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 3: BLUTTER -->
+<!-- ============================================ -->
+<div class="section" id="s3">
+  <div class="section-title">
+    <div class="section-num" style="background:rgba(167,139,250,0.15);color:var(--purple)">03</div>
+    <h2>Blutter - التحليل العميق</h2>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>تشغيل Blutter على التطبيق</h3>
+      <span class="cmd-tag" style="background:rgba(248,113,113,0.1);color:var(--red)">CORE</span>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># === الطريقة 1: من مجلد arm64-v8a ===</span>
+<span class="k">cd</span> blutter
+<span class="k">python</span> blutter.py <span class="p">../miqat_extracted/lib/arm64-v8a</span> <span class="p">../miqat_output</span>
+
+<span class="c"># === الطريقة 2: مباشرة من APK (Blutter يستخرج تلقائي) ===</span>
+<span class="k">python</span> blutter.py <span class="s">"../miqat user.apk"</span> <span class="p">../miqat_output</span>
+
+<span class="c"># === مع إعادة بناء (بعد git pull) ===</span>
+<span class="k">python</span> blutter.py <span class="p">../miqat_extracted/lib/arm64-v8a</span> <span class="p">../miqat_output</span> <span class="f">--rebuild</span>
+
+<span class="c"># === بدون تحليل كود (أسرع) ===</span>
+<span class="k">python</span> blutter.py <span class="p">../miqat_extracted/lib/arm64-v8a</span> <span class="p">../miqat_output</span> <span class="f">--no-analysis</span>
+
+<span class="c"># === تحديد إصدار Dart يدوي ===</span>
+<span class="k">python</span> blutter.py <span class="p">../miqat_extracted/lib/arm64-v8a/libapp.so</span> <span class="p">../miqat_output</span> <span class="f">--dart-version</span> <span class="s">3.8.0_android_arm64</span></pre>
+
+      <div class="note warn">
+        <span class="note-icon">&#9888;</span>
+        <span>على Windows: شغّل الأمر من <strong>"x64 Native Tools Command Prompt for VS"</strong>. أول تشغيل يحتاج 10-30 دقيقة لبناء Dart VM.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>استكشاف مخرجات Blutter</h3>
+      <span class="cmd-tag" style="background:rgba(74,222,128,0.1);color:var(--green)">OUTPUT</span>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># هيكل المخرجات</span>
+<span class="k">ls</span> -la miqat_output/
+<span class="c"># asm/              &lt;-- Assembly files مع رموز</span>
+<span class="c"># pp.txt            &lt;-- Object Pool dump</span>
+<span class="c"># objs.txt          &lt;-- Objects nested dump</span>
+<span class="c"># blutter_frida.js  &lt;-- Frida script جاهز</span>
+<span class="c"># ida_script/       &lt;-- IDA Pro scripts</span>
+
+<span class="c"># عرض Assembly files</span>
+<span class="k">ls</span> miqat_output/asm/
+<span class="k">find</span> miqat_output/asm/ -name <span class="s">"*.txt"</span> | <span class="k">head</span> -20
+
+<span class="c"># ========================================</span>
+<span class="c"># البحث في مخرجات Blutter</span>
+<span class="c"># ========================================</span>
+
+<span class="c"># بحث عن Login function</span>
+<span class="k">grep</span> -rn <span class="s">"login"</span> miqat_output/asm/ --include=<span class="s">"*.txt"</span> -i
+
+<span class="c"># بحث عن API endpoints في Object Pool</span>
+<span class="k">grep</span> <span class="s">"miqatinn"</span> miqat_output/pp.txt
+<span class="k">grep</span> <span class="s">"/api/"</span> miqat_output/pp.txt
+
+<span class="c"># بحث عن authentication</span>
+<span class="k">grep</span> -rn <span class="s">"auth\|token\|bearer\|jwt"</span> miqat_output/asm/ -i | <span class="k">head</span> -30
+
+<span class="c"># بحث عن booking/payment</span>
+<span class="k">grep</span> -rn <span class="s">"book\|payment\|pay\|price"</span> miqat_output/asm/ -i | <span class="k">head</span> -30
+
+<span class="c"># بحث عن premium/subscription</span>
+<span class="k">grep</span> -rn <span class="s">"premium\|subscribe\|purchase\|isPro"</span> miqat_output/asm/ -i
+
+<span class="c"># بحث عن SharedPreferences / Storage</span>
+<span class="k">grep</span> -rn <span class="s">"SharedPreferences\|secure_storage\|Hive\|cache"</span> miqat_output/asm/ -i
+
+<span class="c"># عرض كل الـ Strings في Object Pool</span>
+<span class="k">grep</span> <span class="s">"String"</span> miqat_output/pp.txt | <span class="k">head</span> -50
+
+<span class="c"># بحث عن Objects بالكامل</span>
+<span class="k">grep</span> -A5 <span class="s">"Token\|ApiClient\|AuthRepository"</span> miqat_output/objs.txt</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 4: STRINGS -->
+<!-- ============================================ -->
+<div class="section" id="s4">
+  <div class="section-title">
+    <div class="section-num" style="background:rgba(251,191,36,0.15);color:var(--yellow)">04</div>
+    <h2>تحليل Strings متقدم</h2>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>استخراج كل الـ Strings المفيدة</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># كل الـ strings الطويلة (> 10 chars)</span>
+<span class="k">strings</span> -n 10 miqat_extracted/lib/arm64-v8a/libapp.so > all_strings.txt
+
+<span class="c"># headers HTTP</span>
+<span class="k">grep</span> -iE <span class="s">"content-type|authorization|x-api|accept|user-agent"</span> all_strings.txt
+
+<span class="c"># JSON keys</span>
+<span class="k">grep</span> -iE <span class="s">"\"[a-z_]+\":|email|phone|name|status|message|data|error"</span> all_strings.txt
+
+<span class="c"># error messages (مفيدة لفهم الـ flow)</span>
+<span class="k">grep</span> -iE <span class="s">"error|fail|invalid|expired|unauthorized|forbidden"</span> all_strings.txt
+
+<span class="c"># SharedPreferences keys</span>
+<span class="k">grep</span> -iE <span class="s">"pref_|_key|_token|is_logged|user_id|session"</span> all_strings.txt
+
+<span class="c"># Firebase config</span>
+<span class="k">grep</span> -iE <span class="s">"firebase|firestore|messaging|analytics|crashlytics"</span> all_strings.txt
+
+<span class="c"># حذف الملف المؤقت</span>
+<span class="k">rm</span> all_strings.txt</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 5: FRIDA SETUP -->
+<!-- ============================================ -->
+<div class="section" id="s5">
+  <div class="section-title">
+    <div class="section-num" style="background:rgba(244,114,182,0.15);color:var(--pink)">05</div>
+    <h2>Frida - التحضير والإعداد</h2>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>تثبيت Frida</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># تثبيت Frida tools على الكمبيوتر</span>
+<span class="k">pip install</span> frida-tools
+
+<span class="c"># التحقق من الإصدار</span>
+<span class="k">frida</span> --version
+
+<span class="c"># تحميل frida-server للأندرويد (ARM64)</span>
+<span class="c"># حمّل من: https://github.com/frida/frida/releases</span>
+<span class="c"># اختر: frida-server-XX.X.X-android-arm64.xz</span>
+
+<span class="c"># فك الضغط</span>
+<span class="k">xz</span> -d frida-server-*-android-arm64.xz
+
+<span class="c"># نقل frida-server للجهاز</span>
+<span class="k">adb push</span> frida-server-*-android-arm64 /data/local/tmp/frida-server
+<span class="k">adb shell</span> chmod 755 /data/local/tmp/frida-server
+
+<span class="c"># تشغيل frida-server (في terminal منفصل)</span>
+<span class="k">adb shell</span> su -c /data/local/tmp/frida-server &
+
+<span class="c"># التحقق من الاتصال</span>
+<span class="k">frida-ps</span> -U</pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>تشغيل التطبيق مع Frida</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># تشغيل التطبيق مع Frida (spawn mode)</span>
+<span class="k">frida</span> -U -f <span class="s">com.example.miqatlastuserapp</span> -l <span class="p">script.js</span>
+
+<span class="c"># أو attach على تطبيق شغال</span>
+<span class="k">frida</span> -U <span class="s">com.example.miqatlastuserapp</span> -l <span class="p">script.js</span>
+
+<span class="c"># spawn مع pause (ينتظر %resume)</span>
+<span class="k">frida</span> -U -f <span class="s">com.example.miqatlastuserapp</span> -l <span class="p">script.js</span> <span class="f">--no-pause</span>
+
+<span class="c"># مع Blutter script المولد</span>
+<span class="k">frida</span> -U -f <span class="s">com.example.miqatlastuserapp</span> -l <span class="p">miqat_output/blutter_frida.js</span></pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>Objection (Frida wrapper سهل)</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># تثبيت objection</span>
+<span class="k">pip install</span> objection
+
+<span class="c"># تشغيل</span>
+<span class="k">objection</span> -g <span class="s">com.example.miqatlastuserapp</span> explore
+
+<span class="c"># أوامر داخل objection:</span>
+<span class="v">env</span>                                    <span class="c"># مسارات التطبيق</span>
+<span class="v">android hooking list activities</span>        <span class="c"># كل الـ activities</span>
+<span class="v">android hooking list services</span>          <span class="c"># كل الـ services</span>
+<span class="v">android hooking list receivers</span>         <span class="c"># كل الـ receivers</span>
+<span class="v">android root disable</span>                   <span class="c"># تعطيل root detection</span>
+<span class="v">android sslpinning disable</span>             <span class="c"># تعطيل SSL pinning</span>
+<span class="v">android keystore list</span>                  <span class="c"># عرض مفاتيح KeyStore</span>
+<span class="v">sqlite connect /data/data/com.example.miqatlastuserapp/databases/app.db</span>
+<span class="v">memory list modules</span>                    <span class="c"># الـ modules المحملة</span>
+<span class="v">memory search "miqatinn"</span>               <span class="c"># بحث في الذاكرة</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 6: FRIDA HOOKS -->
+<!-- ============================================ -->
+<div class="section" id="s6">
+  <div class="section-title">
+    <div class="section-num" style="background:rgba(34,211,238,0.15);color:var(--cyan)">06</div>
+    <h2>Frida Hooks - اعتراض الدوال</h2>
+  </div>
+
+  <div class="desc">هذه الـ scripts تحفظها في ملف <code>.js</code> وتشغلها مع <code>frida -U -f com.example.miqatlastuserapp -l script.js</code></div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>Hook على دالة Dart محددة (من Blutter output)</h3>
+      <span class="cmd-tag" style="background:rgba(74,222,128,0.1);color:var(--green)">DART</span>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c">// hook_dart_function.js</span>
+<span class="c">// بعد تشغيل Blutter، ابحث عن عنوان الدالة من asm/ files</span>
+<span class="c">// مثال: grep -rn "login" miqat_output/asm/</span>
+
+<span class="k">var</span> libapp = <span class="f">Module.findBaseAddress</span>(<span class="s">'libapp.so'</span>);
+
+<span class="k">if</span> (libapp) {
+    console.log(<span class="s">'[+] libapp.so at: '</span> + libapp);
+
+    <span class="c">// عنوان الدالة من Blutter output (asm/ files)</span>
+    <span class="c">// استبدل 0xXXXXXX بالعنوان الحقيقي</span>
+    <span class="k">var</span> loginFuncAddr = libapp.add(<span class="o">0xXXXXXX</span>);
+
+    <span class="f">Interceptor.attach</span>(loginFuncAddr, {
+        <span class="k">onEnter</span>: <span class="k">function</span>(args) {
+            console.log(<span class="s">'[+] Login function called!'</span>);
+            console.log(<span class="s">'    arg0: '</span> + args[0]);
+            console.log(<span class="s">'    arg1: '</span> + args[1]);
+        },
+        <span class="k">onLeave</span>: <span class="k">function</span>(retval) {
+            console.log(<span class="s">'[+] Login returned: '</span> + retval);
+        }
+    });
+} <span class="k">else</span> {
+    console.log(<span class="s">'[-] Waiting for libapp.so...'</span>);
+    <span class="c">// إذا التطبيق لسا ما حمّل libapp</span>
+    <span class="k">var</span> interval = setInterval(<span class="k">function</span>() {
+        libapp = <span class="f">Module.findBaseAddress</span>(<span class="s">'libapp.so'</span>);
+        <span class="k">if</span> (libapp) {
+            clearInterval(interval);
+            console.log(<span class="s">'[+] libapp.so loaded at: '</span> + libapp);
+        }
+    }, 500);
+}</pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>Hook على HTTP requests (اعتراض كل الطلبات)</h3>
+      <span class="cmd-tag" style="background:rgba(248,113,113,0.1);color:var(--red)">NETWORK</span>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c">// hook_http.js - اعتراض طلبات HTTP عبر Java layer</span>
+
+Java.perform(<span class="k">function</span>() {
+    <span class="c">// Hook OkHttp3</span>
+    <span class="k">var</span> OkHttpClient = Java.use(<span class="s">'okhttp3.OkHttpClient'</span>);
+    <span class="k">var</span> Request = Java.use(<span class="s">'okhttp3.Request'</span>);
+
+    <span class="k">var</span> RealCall = Java.use(<span class="s">'okhttp3.internal.connection.RealCall'</span>);
+    RealCall.execute.implementation = <span class="k">function</span>() {
+        <span class="k">var</span> request = this.request();
+        console.log(<span class="s">'[HTTP] '</span> + request.method() + <span class="s">' '</span> + request.url().toString());
+
+        <span class="c">// عرض Headers</span>
+        <span class="k">var</span> headers = request.headers();
+        <span class="k">for</span> (<span class="k">var</span> i = 0; i < headers.size(); i++) {
+            console.log(<span class="s">'    '</span> + headers.name(i) + <span class="s">': '</span> + headers.value(i));
+        }
+
+        <span class="k">var</span> response = this.execute();
+        console.log(<span class="s">'[RESP] '</span> + response.code());
+        <span class="k">return</span> response;
+    };
+
+    <span class="c">// Hook URL connections</span>
+    <span class="k">var</span> URL = Java.use(<span class="s">'java.net.URL'</span>);
+    URL.openConnection.overload().implementation = <span class="k">function</span>() {
+        console.log(<span class="s">'[URL] '</span> + this.toString());
+        <span class="k">return</span> this.openConnection();
+    };
+});</pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>Hook على SharedPreferences (اعتراض التخزين)</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c">// hook_prefs.js</span>
+Java.perform(<span class="k">function</span>() {
+    <span class="k">var</span> SharedPrefs = Java.use(<span class="s">'android.app.SharedPreferencesImpl'</span>);
+
+    <span class="c">// قراءة</span>
+    SharedPrefs.getString.implementation = <span class="k">function</span>(key, defValue) {
+        <span class="k">var</span> value = this.getString(key, defValue);
+        console.log(<span class="s">'[PREF GET] '</span> + key + <span class="s">' = '</span> + value);
+        <span class="k">return</span> value;
+    };
+
+    <span class="c">// كتابة</span>
+    <span class="k">var</span> Editor = Java.use(<span class="s">'android.app.SharedPreferencesImpl$EditorImpl'</span>);
+    Editor.putString.implementation = <span class="k">function</span>(key, value) {
+        console.log(<span class="s">'[PREF SET] '</span> + key + <span class="s">' = '</span> + value);
+        <span class="k">return</span> this.putString(key, value);
+    };
+});</pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>Root Detection Bypass</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c">// root_bypass.js</span>
+Java.perform(<span class="k">function</span>() {
+    <span class="c">// Bypass java.io.File.exists() for root paths</span>
+    <span class="k">var</span> File = Java.use(<span class="s">'java.io.File'</span>);
+    <span class="k">var</span> rootPaths = [<span class="s">'/su'</span>, <span class="s">'/system/xbin/su'</span>, <span class="s">'/system/bin/su'</span>,
+        <span class="s">'/data/local/su'</span>, <span class="s">'/sbin/su'</span>, <span class="s">'com.topjohnwu.magisk'</span>];
+
+    File.exists.implementation = <span class="k">function</span>() {
+        <span class="k">var</span> path = this.getAbsolutePath();
+        <span class="k">for</span> (<span class="k">var</span> i = 0; i < rootPaths.length; i++) {
+            <span class="k">if</span> (path.indexOf(rootPaths[i]) !== -1) {
+                console.log(<span class="s">'[ROOT] Blocked: '</span> + path);
+                <span class="k">return</span> false;
+            }
+        }
+        <span class="k">return</span> this.exists();
+    };
+
+    <span class="c">// Bypass Runtime.exec for root checks</span>
+    <span class="k">var</span> Runtime = Java.use(<span class="s">'java.lang.Runtime'</span>);
+    Runtime.exec.overload(<span class="s">'java.lang.String'</span>).implementation = <span class="k">function</span>(cmd) {
+        <span class="k">if</span> (cmd.indexOf(<span class="s">'su'</span>) !== -1 || cmd.indexOf(<span class="s">'which'</span>) !== -1) {
+            console.log(<span class="s">'[ROOT] Blocked exec: '</span> + cmd);
+            throw Java.use(<span class="s">'java.io.IOException'</span>).$new(<span class="s">'blocked'</span>);
+        }
+        <span class="k">return</span> this.exec(cmd);
+    };
+});</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 7: SSL BYPASS -->
+<!-- ============================================ -->
+<div class="section" id="s7">
+  <div class="section-title">
+    <div class="section-num" style="background:rgba(248,113,113,0.15);color:var(--red)">07</div>
+    <h2>SSL Pinning Bypass (Flutter)</h2>
+  </div>
+
+  <div class="note danger">
+    <span class="note-icon">&#9888;</span>
+    <span>Flutter يستخدم BoringSSL مدمج في <code>libflutter.so</code>، لذلك bypass الـ Android العادي لا يعمل. نحتاج طرق خاصة.</span>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>الطريقة 1: reFlutter (الأسهل)</h3>
+      <span class="cmd-tag" style="background:rgba(74,222,128,0.1);color:var(--green)">EASIEST</span>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># تثبيت reFlutter</span>
+<span class="k">pip install</span> reflutter
+
+<span class="c"># تشغيل على APK</span>
+<span class="k">reflutter</span> <span class="s">"miqat user.apk"</span>
+<span class="c"># اختر: 1. Traffic Interception</span>
+<span class="c"># سيولد APK جديد: release.RE.apk</span>
+
+<span class="c"># إعادة توقيع الـ APK</span>
+<span class="k">apksigner</span> sign --ks <span class="p">debug.keystore</span> --ks-pass pass:android release.RE.apk
+
+<span class="c"># أو بـ uber-apk-signer</span>
+<span class="k">java</span> -jar uber-apk-signer.jar -a release.RE.apk
+
+<span class="c"># تثبيت على الجهاز</span>
+<span class="k">adb install</span> release.RE.apk
+
+<span class="c"># إعداد Proxy: ضع IP الكمبيوتر مع port 8083</span>
+<span class="c"># في Burp Suite: Proxy > Options > Add 8083 on all interfaces</span></pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>الطريقة 2: Frida Hook على BoringSSL</h3>
+      <span class="cmd-tag" style="background:rgba(167,139,250,0.1);color:var(--purple)">ADVANCED</span>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c">// flutter_ssl_bypass.js</span>
+<span class="k">function</span> <span class="f">hookFlutterSSL</span>() {
+    <span class="k">var</span> libflutter = <span class="f">Module.findBaseAddress</span>(<span class="s">'libflutter.so'</span>);
+    <span class="k">if</span> (!libflutter) {
+        setTimeout(hookFlutterSSL, 500);
+        <span class="k">return</span>;
+    }
+    console.log(<span class="s">'[+] libflutter.so at: '</span> + libflutter);
+
+    <span class="c">// Hook ssl_crypto_x509_session_verify_cert_chain</span>
+    <span class="c">// البحث عن pattern الدالة في libflutter.so</span>
+    <span class="k">var</span> patterns = [
+        <span class="s">'2d e9 f0 4f a3 b0 82 46 50 20 10 70'</span>,  <span class="c">// ARM32</span>
+        <span class="s">'f4 4f be a9 fd 7b 01 a9 fd 43 00 91'</span>,  <span class="c">// ARM64</span>
+    ];
+
+    <span class="k">for</span> (<span class="k">var</span> p = 0; p < patterns.length; p++) {
+        <span class="k">var</span> matches = <span class="f">Memory.scan</span>(libflutter, <span class="f">Module.findBaseAddress</span>(<span class="s">'libflutter.so'</span>).add(<span class="f">Process.findModuleByName</span>(<span class="s">'libflutter.so'</span>).size), patterns[p], {
+            onMatch: <span class="k">function</span>(addr) {
+                console.log(<span class="s">'[+] SSL verify at: '</span> + addr);
+                <span class="f">Interceptor.replace</span>(addr, new <span class="f">NativeCallback</span>(<span class="k">function</span>() {
+                    console.log(<span class="s">'[+] SSL verify bypassed!'</span>);
+                    <span class="k">return</span> 1; <span class="c">// always return success</span>
+                }, <span class="s">'int'</span>, [<span class="s">'pointer'</span>, <span class="s">'pointer'</span>]));
+            }
+        });
+    }
+}
+hookFlutterSSL();</pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>الطريقة 3: ProxyDroid (إجبار Traffic)</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># على الجهاز الروت:</span>
+<span class="c"># 1. ثبّت ProxyDroid من Play Store أو APK</span>
+<span class="c"># 2. Host: IP الكمبيوتر</span>
+<span class="c"># 3. Port: 8080 (Burp)</span>
+<span class="c"># 4. Proxy Type: HTTP</span>
+<span class="c"># 5. Enable</span>
+
+<span class="c"># أو بـ iptables يدوي:</span>
+<span class="k">adb shell</span> su -c <span class="s">"iptables -t nat -A OUTPUT -p tcp --dport 443 -j DNAT --to-destination YOUR_IP:8080"</span>
+<span class="k">adb shell</span> su -c <span class="s">"iptables -t nat -A OUTPUT -p tcp --dport 80 -j DNAT --to-destination YOUR_IP:8080"</span>
+
+<span class="c"># إزالة القواعد:</span>
+<span class="k">adb shell</span> su -c <span class="s">"iptables -t nat -F"</span></pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>إعداد Burp Suite</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># 1. تصدير شهادة Burp</span>
+<span class="c">#    Proxy > Options > Import/Export CA Certificate > Certificate in DER format</span>
+
+<span class="c"># 2. تحويل لـ PEM</span>
+<span class="k">openssl</span> x509 -inform DER -in cacert.der -out cacert.pem
+
+<span class="c"># 3. حساب hash الشهادة</span>
+<span class="k">openssl</span> x509 -inform PEM -subject_hash_old -in cacert.pem | <span class="k">head</span> -1
+<span class="c"># مثلاً: 9a5ba575</span>
+
+<span class="c"># 4. إعادة تسمية</span>
+<span class="k">mv</span> cacert.pem 9a5ba575.0
+
+<span class="c"># 5. نقل للجهاز (Root مطلوب)</span>
+<span class="k">adb push</span> 9a5ba575.0 /data/local/tmp/
+<span class="k">adb shell</span> su -c <span class="s">"mount -o rw,remount /system"</span>
+<span class="k">adb shell</span> su -c <span class="s">"cp /data/local/tmp/9a5ba575.0 /system/etc/security/cacerts/"</span>
+<span class="k">adb shell</span> su -c <span class="s">"chmod 644 /system/etc/security/cacerts/9a5ba575.0"</span>
+<span class="k">adb shell</span> su -c <span class="s">"mount -o ro,remount /system"</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 8: GHIDRA -->
+<!-- ============================================ -->
+<div class="section" id="s8">
+  <div class="section-title">
+    <div class="section-num" style="background:rgba(251,191,36,0.15);color:var(--yellow)">08</div>
+    <h2>Ghidra - التحليل الثابت العميق</h2>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>تحليل libapp.so في Ghidra</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># 1. فتح Ghidra</span>
+<span class="k">ghidraRun</span>
+
+<span class="c"># 2. File > New Project > Non-Shared Project</span>
+<span class="c"># 3. File > Import File > اختر libapp.so</span>
+<span class="c">#    Format: ELF</span>
+<span class="c">#    Language: AARCH64:LE:64:v8A (ARM 64-bit)</span>
+<span class="c"># 4. اضغط Yes لتشغيل Auto Analysis</span>
+
+<span class="c"># 5. استيراد رموز Blutter:</span>
+<span class="c">#    بعد تشغيل Blutter، استخدم ida_script/ لاستيراد الرموز</span>
+<span class="c">#    أو اكتب Ghidra script لقراءة asm/ files</span>
+
+<span class="c"># 6. البحث عن دوال:</span>
+<span class="c">#    Search > For Strings > "login"</span>
+<span class="c">#    Search > For Strings > "miqatinn"</span>
+<span class="c">#    Navigation > Go To Address > العنوان من Blutter</span>
+
+<span class="c"># 7. Decompile:</span>
+<span class="c">#    Window > Decompile > اختر الدالة</span>
+<span class="c">#    سترى pseudo C code</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 9: PATCHING -->
+<!-- ============================================ -->
+<div class="section" id="s9">
+  <div class="section-title">
+    <div class="section-num" style="background:rgba(251,146,60,0.15);color:var(--orange)">09</div>
+    <h2>Patching - تعديل التطبيق</h2>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>إعادة بناء وتوقيع APK</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># 1. فك بـ apktool</span>
+<span class="k">apktool</span> d <span class="s">"miqat user.apk"</span> -o miqat_patched
+
+<span class="c"># 2. عدّل الملفات المطلوبة</span>
+<span class="c">#    - AndroidManifest.xml (إضافة debuggable, network security)</span>
+<span class="c">#    - smali/ (تعديل Java code)</span>
+<span class="c">#    - lib/arm64-v8a/libapp.so (تعديل Dart code بـ hex editor)</span>
+
+<span class="c"># 3. إعادة البناء</span>
+<span class="k">apktool</span> b miqat_patched -o miqat_patched.apk
+
+<span class="c"># 4. إنشاء keystore (مرة واحدة)</span>
+<span class="k">keytool</span> -genkey -v -keystore <span class="p">debug.keystore</span> \
+  -alias debug -keyalg RSA -keysize 2048 \
+  -validity 10000 -storepass android -keypass android \
+  -dname <span class="s">"CN=Debug"</span>
+
+<span class="c"># 5. التوقيع</span>
+<span class="k">apksigner</span> sign --ks <span class="p">debug.keystore</span> --ks-pass pass:android miqat_patched.apk
+
+<span class="c"># 6. Zipalign (تحسين الأداء)</span>
+<span class="k">zipalign</span> -v 4 miqat_patched.apk miqat_final.apk
+
+<span class="c"># 7. التثبيت</span>
+<span class="k">adb install</span> miqat_final.apk</pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>إضافة Network Security Config (للاعتراض)</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># أضف هذا الملف: miqat_patched/res/xml/network_security_config.xml</span>
+<span class="r">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="r">&lt;network-security-config&gt;</span>
+    <span class="r">&lt;base-config</span> cleartextTrafficPermitted=<span class="s">"true"</span><span class="r">&gt;</span>
+        <span class="r">&lt;trust-anchors&gt;</span>
+            <span class="r">&lt;certificates</span> src=<span class="s">"system"</span> <span class="r">/&gt;</span>
+            <span class="r">&lt;certificates</span> src=<span class="s">"user"</span> <span class="r">/&gt;</span>
+        <span class="r">&lt;/trust-anchors&gt;</span>
+    <span class="r">&lt;/base-config&gt;</span>
+<span class="r">&lt;/network-security-config&gt;</span>
+
+<span class="c"># في AndroidManifest.xml أضف:</span>
+<span class="c"># android:networkSecurityConfig="@xml/network_security_config"</span>
+<span class="c"># android:debuggable="true"</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 10: NETWORK -->
+<!-- ============================================ -->
+<div class="section" id="s10">
+  <div class="section-title">
+    <div class="section-num" style="background:rgba(56,189,248,0.15);color:var(--primary)">10</div>
+    <h2>Network Analysis</h2>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>اعتراض API calls مع Burp Suite</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># بعد إعداد SSL bypass + Burp proxy:</span>
+
+<span class="c"># الـ API endpoints اللي تتوقع تشوفها:</span>
+<span class="c"># POST https://app-api.miqatinn.com/api/v1/client/login</span>
+<span class="c"># POST https://app-api.miqatinn.com/api/v1/client/register</span>
+<span class="c"># POST https://app-api.miqatinn.com/api/v1/client/verify-otp</span>
+<span class="c"># GET  https://app-api.miqatinn.com/api/v1/client/home</span>
+<span class="c"># GET  https://app-api.miqatinn.com/api/v1/client/trips</span>
+<span class="c"># GET  https://app-api.miqatinn.com/api/v1/client/auth/profile</span>
+<span class="c"># POST https://app-api.miqatinn.com/api/v1/client/auth/bookings</span>
+
+<span class="c"># اختبار API مباشرة بـ curl:</span>
+<span class="k">curl</span> -X POST <span class="s">"https://app-api.miqatinn.com/api/v1/client/login"</span> \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"email":"test@test.com","password":"123456"}'</span>
+
+<span class="c"># اختبار endpoint بدون auth</span>
+<span class="k">curl</span> -X GET <span class="s">"https://app-api.miqatinn.com/api/v1/client/home"</span> \
+  -H <span class="s">"Content-Type: application/json"</span>
+
+<span class="c"># اختبار endpoint مع token</span>
+<span class="k">curl</span> -X GET <span class="s">"https://app-api.miqatinn.com/api/v1/client/auth/profile"</span> \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -H <span class="s">"Authorization: Bearer YOUR_TOKEN_HERE"</span></pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>التقاط Traffic بـ mitmproxy</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># تثبيت</span>
+<span class="k">pip install</span> mitmproxy
+
+<span class="c"># تشغيل</span>
+<span class="k">mitmproxy</span> --mode regular --listen-port 8080
+
+<span class="c"># أو مع واجهة ويب</span>
+<span class="k">mitmweb</span> --mode regular --listen-port 8080
+
+<span class="c"># تسجيل في ملف</span>
+<span class="k">mitmdump</span> -w traffic_dump.flow --listen-port 8080
+
+<span class="c"># إعادة تشغيل من ملف</span>
+<span class="k">mitmdump</span> -r traffic_dump.flow</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 11: STORAGE -->
+<!-- ============================================ -->
+<div class="section" id="s11">
+  <div class="section-title">
+    <div class="section-num" style="background:rgba(74,222,128,0.15);color:var(--green)">11</div>
+    <h2>Storage & Data Analysis</h2>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>استخراج بيانات التطبيق (Root مطلوب)</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># مسار بيانات التطبيق</span>
+<span class="k">adb shell</span> su -c <span class="s">"ls -la /data/data/com.example.miqatlastuserapp/"</span>
+
+<span class="c"># SharedPreferences</span>
+<span class="k">adb shell</span> su -c <span class="s">"cat /data/data/com.example.miqatlastuserapp/shared_prefs/*.xml"</span>
+
+<span class="c"># قواعد البيانات</span>
+<span class="k">adb shell</span> su -c <span class="s">"ls /data/data/com.example.miqatlastuserapp/databases/"</span>
+
+<span class="c"># نسخ قاعدة بيانات</span>
+<span class="k">adb shell</span> su -c <span class="s">"cp /data/data/com.example.miqatlastuserapp/databases/app.db /sdcard/"</span>
+<span class="k">adb pull</span> /sdcard/app.db
+
+<span class="c"># فتح بـ sqlite3</span>
+<span class="k">sqlite3</span> app.db
+<span class="v">.tables</span>
+<span class="v">.schema users</span>
+<span class="v">SELECT * FROM users;</span>
+
+<span class="c"># Flutter Secure Storage</span>
+<span class="k">adb shell</span> su -c <span class="s">"cat /data/data/com.example.miqatlastuserapp/shared_prefs/FlutterSecureStorage.xml"</span>
+
+<span class="c"># Hive database</span>
+<span class="k">adb shell</span> su -c <span class="s">"ls /data/data/com.example.miqatlastuserapp/app_flutter/*.hive"</span>
+<span class="k">adb shell</span> su -c <span class="s">"cp /data/data/com.example.miqatlastuserapp/app_flutter/*.hive /sdcard/"</span>
+<span class="k">adb pull</span> /sdcard/*.hive
+
+<span class="c"># Cache</span>
+<span class="k">adb shell</span> su -c <span class="s">"ls -la /data/data/com.example.miqatlastuserapp/cache/"</span>
+
+<span class="c"># نسخ كل البيانات</span>
+<span class="k">adb shell</span> su -c <span class="s">"tar czf /sdcard/miqat_data.tar.gz /data/data/com.example.miqatlastuserapp/"</span>
+<span class="k">adb pull</span> /sdcard/miqat_data.tar.gz</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 12: AUTOMATION -->
+<!-- ============================================ -->
+<div class="section" id="s12">
+  <div class="section-title">
+    <div class="section-num" style="background:rgba(167,139,250,0.15);color:var(--purple)">12</div>
+    <h2>Automation & Advanced</h2>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>MobSF - فحص آلي شامل</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># تشغيل MobSF بـ Docker</span>
+<span class="k">docker pull</span> opensecurity/mobile-security-framework-mobsf
+<span class="k">docker run</span> -it --rm -p 8000:8000 opensecurity/mobile-security-framework-mobsf
+
+<span class="c"># افتح http://localhost:8000</span>
+<span class="c"># ارفع miqat user.apk</span>
+<span class="c"># سيعطيك تقرير شامل عن:</span>
+<span class="c"># - Permissions analysis</span>
+<span class="c"># - Manifest analysis</span>
+<span class="c"># - Code analysis</span>
+<span class="c"># - Binary analysis</span>
+<span class="c"># - Hardcoded secrets</span></pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>ADB Commands مفيدة</h3>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c"># معلومات عن التطبيق</span>
+<span class="k">adb shell</span> dumpsys package com.example.miqatlastuserapp | <span class="k">grep</span> -E <span class="s">"version|permission|activity"</span>
+
+<span class="c"># تشغيل Activity معينة</span>
+<span class="k">adb shell</span> am start -n com.example.miqatlastuserapp/.MainActivity
+
+<span class="c"># إرسال Intent</span>
+<span class="k">adb shell</span> am start -a android.intent.action.VIEW -d <span class="s">"https://miqatinn.com/deep-link"</span>
+
+<span class="c"># Logcat (كل logs التطبيق)</span>
+<span class="k">adb logcat</span> --pid=$(adb shell pidof com.example.miqatlastuserapp) | <span class="k">grep</span> -i <span class="s">"flutter\|dart\|miqat"</span>
+
+<span class="c"># Logcat filtered</span>
+<span class="k">adb logcat</span> -s flutter
+
+<span class="c"># Screenshot</span>
+<span class="k">adb exec-out</span> screencap -p > screenshot.png
+
+<span class="c"># Screen record</span>
+<span class="k">adb shell</span> screenrecord /sdcard/demo.mp4
+
+<span class="c"># تنظيف بيانات التطبيق</span>
+<span class="k">adb shell</span> pm clear com.example.miqatlastuserapp
+
+<span class="c"># Force stop</span>
+<span class="k">adb shell</span> am force-stop com.example.miqatlastuserapp
+
+<span class="c"># عرض الشاشة على الكمبيوتر</span>
+<span class="k">scrcpy</span></pre>
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header">
+      <h3>Script شامل - تحليل كامل بأمر واحد</h3>
+      <span class="cmd-tag" style="background:rgba(74,222,128,0.1);color:var(--green)">ALL-IN-ONE</span>
+    </div>
+    <div class="cmd-body">
+<pre><span class="c">#!/bin/bash</span>
+<span class="c"># full_analysis.sh - تحليل كامل لـ Flutter APK</span>
+
+APK=<span class="s">"miqat user.apk"</span>
+OUT=<span class="s">"analysis_output"</span>
+
+<span class="k">echo</span> <span class="s">"[1/6] Extracting APK..."</span>
+<span class="k">mkdir</span> -p $OUT/extracted
+<span class="k">unzip</span> -o <span class="s">"$APK"</span> -d $OUT/extracted
+
+<span class="k">echo</span> <span class="s">"[2/6] Extracting Dart version..."</span>
+<span class="k">python</span> -c <span class="s">"
+import re
+with open('$OUT/extracted/lib/arm64-v8a/libflutter.so', 'rb') as f:
+    data = f.read()
+    m = re.search(rb'([\d]+\.[\d]+\.[\d]+) \((stable|beta|dev)\)', data)
+    if m: print(f'Dart: {m.group(1).decode()} ({m.group(2).decode()})')
+"</span>
+
+<span class="k">echo</span> <span class="s">"[3/6] Extracting strings..."</span>
+<span class="k">strings</span> -n 8 $OUT/extracted/lib/arm64-v8a/libapp.so > $OUT/all_strings.txt
+
+<span class="k">echo</span> <span class="s">"[4/6] Finding URLs..."</span>
+<span class="k">grep</span> -iE <span class="s">"https?://"</span> $OUT/all_strings.txt > $OUT/urls.txt
+
+<span class="k">echo</span> <span class="s">"[5/6] Finding API endpoints..."</span>
+<span class="k">grep</span> -iE <span class="s">"/api/"</span> $OUT/all_strings.txt > $OUT/api_endpoints.txt
+
+<span class="k">echo</span> <span class="s">"[6/6] Finding secrets..."</span>
+<span class="k">grep</span> -iE <span class="s">"key|secret|token|password|firebase|AIza"</span> $OUT/all_strings.txt > $OUT/secrets.txt
+
+<span class="k">echo</span> <span class="s">"[+] Finding Dart files..."</span>
+<span class="k">grep</span> <span class="s">"\.dart"</span> $OUT/all_strings.txt | <span class="k">sort</span> -u > $OUT/dart_files.txt
+
+<span class="k">echo</span> <span class="s">"[DONE] Results in $OUT/"</span>
+<span class="k">echo</span> <span class="s">"  URLs:      $(wc -l < $OUT/urls.txt)"</span>
+<span class="k">echo</span> <span class="s">"  Endpoints: $(wc -l < $OUT/api_endpoints.txt)"</span>
+<span class="k">echo</span> <span class="s">"  Secrets:   $(wc -l < $OUT/secrets.txt)"</span>
+<span class="k">echo</span> <span class="s">"  Dart files:$(wc -l < $OUT/dart_files.txt)"</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="text-align:center;padding:40px 20px;color:var(--text3);font-size:0.82em;border-top:1px solid var(--border);margin-top:30px">
+  <p>Miqat APK Flutter Reverse Engineering Commands Guide</p>
+  <p style="margin-top:5px;color:var(--text3);font-size:0.85em">For authorized security testing and educational purposes only</p>
+</div>
+
+</div><!-- container -->
+
+<script>
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+</script>
+</body>
+</html>
