@@ -74,6 +74,20 @@ code{background:var(--bg2);color:var(--cyan);padding:2px 7px;border-radius:4px;f
 .info-item .label{font-size:0.72em;color:var(--text3);font-family:'JetBrains Mono',monospace;text-transform:uppercase}
 .info-item .value{font-size:0.9em;color:var(--text);font-weight:600;margin-top:2px}
 
+/* OS Tabs */
+.os-tabs{display:flex;gap:0;margin:10px 0 0;border-bottom:2px solid var(--border)}
+.os-tab{padding:6px 16px;cursor:pointer;font-size:0.78em;font-family:'JetBrains Mono',monospace;color:var(--text3);border:1px solid transparent;border-bottom:none;border-radius:6px 6px 0 0;transition:.2s;user-select:none}
+.os-tab:hover{color:var(--text2);background:rgba(255,255,255,0.03)}
+.os-tab.active{color:var(--primary);background:var(--bg);border-color:var(--border);border-bottom:2px solid var(--bg);margin-bottom:-2px}
+.os-tab.linux-tab.active{color:var(--green)}
+.os-tab.win-tab.active{color:var(--primary)}
+.os-content{display:none}
+.os-content.active{display:block}
+
+.platform-badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:0.65em;font-family:'JetBrains Mono',monospace;margin-left:6px;vertical-align:middle}
+.badge-linux{background:rgba(74,222,128,0.12);color:var(--green);border:1px solid rgba(74,222,128,0.25)}
+.badge-win{background:rgba(56,189,248,0.12);color:var(--primary);border:1px solid rgba(56,189,248,0.25)}
+
 @media(max-width:768px){
   .hero h1{font-size:1.5em}
   .grid{grid-template-columns:1fr}
@@ -112,20 +126,23 @@ code{background:var(--bg2);color:var(--cyan);padding:2px 7px;border-radius:4px;f
   </div>
 </div>
 
-<!-- App Info -->
 <div class="container">
+
+<!-- OS Note -->
+<div class="note info" style="margin-top:15px">
+  <span class="note-icon">&#128187;</span>
+  <span>كل أمر فيه طريقتين: <strong>Linux/macOS</strong> (strings + grep) و <strong>Windows/Python</strong> (بديل بـ Python). اضغط على التبويب المناسب لنظامك. أوامر PowerShell تحتاج <code>&</code> قبل المسار لو فيه مسافات.</span>
+</div>
 
 <div class="app-info">
   <h3>معلومات التطبيق المستخرجة</h3>
   <div class="info-grid">
-    <div class="info-item"><div class="label">Package Name</div><div class="value">com.example.miqatlastuserapp</div></div>
-    <div class="info-item"><div class="label">Version</div><div class="value">1.0.0</div></div>
+    <div class="info-item"><div class="label">Package</div><div class="value">com.example.miqatlastuserapp</div></div>
     <div class="info-item"><div class="label">Dart Version</div><div class="value">3.8.0 (stable)</div></div>
-    <div class="info-item"><div class="label">Base API</div><div class="value" style="color:var(--cyan)">https://app-api.miqatinn.com</div></div>
-    <div class="info-item"><div class="label">Architecture</div><div class="value">ARM64 + ARM32 + x86 + x86_64</div></div>
-    <div class="info-item"><div class="label">Languages</div><div class="value">Arabic, English, Turkish</div></div>
-    <div class="info-item"><div class="label">Pattern</div><div class="value">Clean Architecture + BLoC/Cubit</div></div>
-    <div class="info-item"><div class="label">libapp.so</div><div class="value">9.6 MB</div></div>
+    <div class="info-item"><div class="label">Architecture</div><div class="value">ARM64 (arm64-v8a)</div></div>
+    <div class="info-item"><div class="label">Base API</div><div class="value">app-api.miqatinn.com</div></div>
+    <div class="info-item"><div class="label">Certificate</div><div class="value">Android Debug (self-signed)</div></div>
+    <div class="info-item"><div class="label">Snapshot</div><div class="value">Compressed Pointers</div></div>
   </div>
 </div>
 
@@ -203,6 +220,11 @@ code{background:var(--bg2);color:var(--cyan);padding:2px 7px;border-radius:4px;f
       <h3>استخراج معلومات التوقيع</h3>
     </div>
     <div class="cmd-body">
+      <div class="os-tabs">
+        <div class="os-tab linux-tab active" onclick="switchTab(this,'linux')">Linux / macOS</div>
+        <div class="os-tab win-tab" onclick="switchTab(this,'win')">Windows (PowerShell)</div>
+      </div>
+      <div class="os-content linux active">
 <pre><span class="c"># عرض معلومات التوقيع</span>
 <span class="k">keytool</span> -printcert -jarfile <span class="s">"miqat user.apk"</span>
 
@@ -211,6 +233,20 @@ code{background:var(--bg2);color:var(--cyan);padding:2px 7px;border-radius:4px;f
 
 <span class="c"># التحقق من نوع التوقيع (v1/v2/v3/v4)</span>
 <span class="k">apksigner</span> verify -v <span class="s">"miqat user.apk"</span></pre>
+      </div>
+      <div class="os-content win">
+<pre><span class="c"># PowerShell: لازم & قبل المسار + مسار keytool كامل</span>
+<span class="k">&</span> <span class="s">"C:\Program Files\Java\jdk-22\bin\keytool"</span> -printcert -jarfile <span class="s">".\miqat user.apk"</span>
+
+<span class="c"># أو من ملف CERT.RSA المستخرج</span>
+<span class="k">&</span> <span class="s">"C:\Program Files\Java\jdk-22\bin\keytool"</span> -printcert -file <span class="s">"miqat_extracted\META-INF\CERT.RSA"</span>
+
+<span class="c"># لو عندك JDK مختلف، غيّر المسار حسب الإصدار:</span>
+<span class="c"># jdk-11, jdk-17, jdk-22, jdk1.8.0_202</span>
+
+<span class="c"># نصيحة: أضف Java لـ PATH عشان ما تحتاج المسار الكامل كل مرة</span>
+<span class="c"># $env:PATH += ";C:\Program Files\Java\jdk-22\bin"</span></pre>
+      </div>
     </div>
   </div>
 </div>
@@ -230,24 +266,30 @@ code{background:var(--bg2);color:var(--cyan);padding:2px 7px;border-radius:4px;f
       <span class="cmd-tag" style="background:rgba(251,191,36,0.1);color:var(--yellow)">IMPORTANT</span>
     </div>
     <div class="cmd-body">
+      <div class="os-tabs">
+        <div class="os-tab linux-tab active" onclick="switchTab(this,'linux')">Linux / macOS <span class="platform-badge badge-linux">strings</span></div>
+        <div class="os-tab win-tab" onclick="switchTab(this,'win')">Windows <span class="platform-badge badge-win">Python</span></div>
+      </div>
+      <div class="os-content linux active">
 <pre><span class="c"># استخراج إصدار Dart من libflutter.so</span>
 <span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libflutter.so | <span class="k">grep</span> -E <span class="s">"^[0-9]+\.[0-9]+\.[0-9]+ \(stable\)"</span>
 <span class="c"># النتيجة: 3.8.0 (stable)</span>
 
-<span class="c"># أو بـ Python إذا ما عندك strings</span>
-<span class="k">python</span> -c <span class="s">"
-import re
-with open('miqat_extracted/lib/arm64-v8a/libflutter.so', 'rb') as f:
-    data = f.read()
-    m = re.search(rb'([\d]+\.[\d]+\.[\d]+) \((stable|beta|dev)\)', data)
-    if m: print(f'Dart: {m.group(1).decode()} ({m.group(2).decode()})')
-    hashes = re.findall(rb'\x00([a-f\d]{40})(?=\x00)', data)
-    for h in hashes: print(f'Engine: {h.decode()}')
-"</span>
-
 <span class="c"># استخراج snapshot flags من libapp.so</span>
 <span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">head</span> -15
 <span class="c"># النتيجة: compressed-pointers null-safety arm64 android</span></pre>
+      </div>
+      <div class="os-content win">
+<pre><span class="c"># استخراج إصدار Dart من libflutter.so بـ Python</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libflutter.so','rb').read();m=re.search(rb'([\d]+\.[\d]+\.[\d]+) \((stable|beta|dev)\)',data);print(f'Dart: {m.group(1).decode()} ({m.group(2).decode()})') if m else print('Not found')"</span>
+<span class="c"># النتيجة: Dart: 3.8.0 (stable)</span>
+
+<span class="c"># استخراج Engine IDs</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libflutter.so','rb').read();[print(f'Engine: {h.decode()}') for h in re.findall(rb'\x00([a-f\d]{40})(?=\x00)',data)]"</span>
+
+<span class="c"># استخراج snapshot flags من libapp.so</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();[print(s.decode('ascii','ignore')) for s in re.findall(rb'[\x20-\x7e]{4,}',data[:500])]"</span></pre>
+      </div>
     </div>
   </div>
 
@@ -257,6 +299,11 @@ with open('miqat_extracted/lib/arm64-v8a/libflutter.so', 'rb') as f:
       <span class="cmd-tag" style="background:rgba(248,113,113,0.1);color:var(--red)">SECRETS</span>
     </div>
     <div class="cmd-body">
+      <div class="os-tabs">
+        <div class="os-tab linux-tab active" onclick="switchTab(this,'linux')">Linux / macOS <span class="platform-badge badge-linux">strings</span></div>
+        <div class="os-tab win-tab" onclick="switchTab(this,'win')">Windows <span class="platform-badge badge-win">Python</span></div>
+      </div>
+      <div class="os-content linux active">
 <pre><span class="c"># كل الـ URLs</span>
 <span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> -i <span class="s">"https\?://"</span>
 
@@ -276,17 +323,30 @@ with open('miqat_extracted/lib/arm64-v8a/libflutter.so', 'rb') as f:
 <span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> -iE <span class="s">"password|credential|admin|root"</span>
 
 <span class="c"># بحث عن Base64 encoded strings (أسرار مخبأة)</span>
-<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> -E <span class="s">"^[A-Za-z0-9+/]{20,}={0,2}$"</span>
+<span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> -E <span class="s">"^[A-Za-z0-9+/]{20,}={0,2}$"</span></pre>
+      </div>
+      <div class="os-content win">
+<pre><span class="c"># كل الـ URLs</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();[print(m.decode('utf-8','ignore')) for m in re.findall(rb'https?://[\x20-\x7e]{5,200}',data)]"</span>
 
-<span class="c"># بحث شامل بـ Python</span>
-<span class="k">python</span> -c <span class="s">"
-import re, sys
-sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-with open('miqat_extracted/lib/arm64-v8a/libapp.so', 'rb') as f:
-    data = f.read()
-for url in re.findall(rb'https?://[\x20-\x7e]{5,200}', data):
-    print(url.decode('ascii', errors='replace'))
-"</span></pre>
+<span class="c"># API endpoints</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();[print(m.decode('utf-8','ignore')) for m in re.findall(rb'[\x20-\x7e]*\/api\/[\x20-\x7e]*',data)]"</span>
+
+<span class="c"># مفاتيح API + Secrets + Tokens</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();strs=re.findall(rb'[\x20-\x7e]{6,}',data);[print(s.decode('ascii','ignore')) for s in strs if re.search(rb'(?i)api.?key|secret|token|bearer|auth',s)]"</span>
+
+<span class="c"># مفاتيح Google (AIza...)</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();[print(m.decode()) for m in re.findall(rb'AIza[\x20-\x7e]{20,}',data)]"</span>
+
+<span class="c"># مفاتيح Firebase</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();strs=re.findall(rb'[\x20-\x7e]{6,}',data);[print(s.decode('ascii','ignore')) for s in strs if re.search(rb'(?i)firebase|firestore|fcm',s)]"</span>
+
+<span class="c"># بحث عن passwords / credentials</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();strs=re.findall(rb'[\x20-\x7e]{6,}',data);[print(s.decode('ascii','ignore')) for s in strs if re.search(rb'(?i)password|credential|admin|root',s)]"</span>
+
+<span class="c"># بحث عن Base64 encoded strings</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();[print(m.decode()) for m in re.findall(rb'[A-Za-z0-9+/]{20,}={0,2}',data)]"</span></pre>
+      </div>
     </div>
   </div>
 
@@ -295,6 +355,11 @@ for url in re.findall(rb'https?://[\x20-\x7e]{5,200}', data):
       <h3>استخراج بنية التطبيق (Dart files)</h3>
     </div>
     <div class="cmd-body">
+      <div class="os-tabs">
+        <div class="os-tab linux-tab active" onclick="switchTab(this,'linux')">Linux / macOS <span class="platform-badge badge-linux">strings</span></div>
+        <div class="os-tab win-tab" onclick="switchTab(this,'win')">Windows <span class="platform-badge badge-win">Python</span></div>
+      </div>
+      <div class="os-content linux active">
 <pre><span class="c"># كل ملفات Dart (يكشف Clean Architecture)</span>
 <span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> <span class="s">"\.dart"</span> | <span class="k">sort</span> -u
 
@@ -308,6 +373,20 @@ for url in re.findall(rb'https?://[\x20-\x7e]{5,200}', data):
 
 <span class="c"># Flutter packages المستخدمة</span>
 <span class="k">strings</span> miqat_extracted/lib/arm64-v8a/libapp.so | <span class="k">grep</span> <span class="s">"package:"</span> | <span class="k">sort</span> -u</pre>
+      </div>
+      <div class="os-content win">
+<pre><span class="c"># كل ملفات Dart (يكشف Clean Architecture)</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();found=sorted(set(m.decode('ascii','ignore') for m in re.findall(rb'[\x20-\x7e]*\.dart[\x20-\x7e]*',data)));[print(f) for f in found]"</span>
+
+<span class="c"># ملفات feature معينة (غيّر الكلمة حسب ما تبحث عنه)</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();strs=re.findall(rb'[\x20-\x7e]{4,}',data);[print(s.decode('ascii','ignore')) for s in strs if b'auth/' in s]"</span>
+
+<span class="c"># أسماء الكلاسات</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();strs=re.findall(rb'[\x20-\x7e]{4,}',data);[print(s.decode('ascii','ignore')) for s in strs if re.search(rb'Cubit|Bloc|Screen|Widget|Repository|UseCase|Model',s)]"</span>
+
+<span class="c"># Flutter packages المستخدمة</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();found=sorted(set(m.decode('ascii','ignore') for m in re.findall(rb'package:[\x20-\x7e]+',data)));[print(f) for f in found]"</span></pre>
+      </div>
     </div>
   </div>
 
@@ -399,6 +478,11 @@ for url in re.findall(rb'https?://[\x20-\x7e]{5,200}', data):
       <span class="cmd-tag" style="background:rgba(74,222,128,0.1);color:var(--green)">OUTPUT</span>
     </div>
     <div class="cmd-body">
+      <div class="os-tabs">
+        <div class="os-tab linux-tab active" onclick="switchTab(this,'linux')">Linux / macOS <span class="platform-badge badge-linux">grep</span></div>
+        <div class="os-tab win-tab" onclick="switchTab(this,'win')">Windows <span class="platform-badge badge-win">findstr / Python</span></div>
+      </div>
+      <div class="os-content linux active">
 <pre><span class="c"># هيكل المخرجات</span>
 <span class="k">ls</span> -la miqat_output/
 <span class="c"># asm/              &lt;-- Assembly files مع رموز</span>
@@ -439,6 +523,52 @@ for url in re.findall(rb'https?://[\x20-\x7e]{5,200}', data):
 
 <span class="c"># بحث عن Objects بالكامل</span>
 <span class="k">grep</span> -A5 <span class="s">"Token\|ApiClient\|AuthRepository"</span> miqat_output/objs.txt</pre>
+      </div>
+      <div class="os-content win">
+<pre><span class="c"># هيكل المخرجات</span>
+<span class="k">dir</span> miqat_output\
+
+<span class="c"># عرض Assembly files</span>
+<span class="k">dir</span> miqat_output\asm\
+
+<span class="c"># ========================================</span>
+<span class="c"># البحث في مخرجات Blutter (PowerShell)</span>
+<span class="c"># ========================================</span>
+
+<span class="c"># بحث عن Login function (findstr = grep على Windows)</span>
+<span class="k">findstr</span> /s /i /n <span class="s">"login"</span> miqat_output\asm\*.txt
+
+<span class="c"># بحث عن API endpoints في Object Pool</span>
+<span class="k">findstr</span> <span class="s">"miqatinn"</span> miqat_output\pp.txt
+<span class="k">findstr</span> <span class="s">"/api/"</span> miqat_output\pp.txt
+
+<span class="c"># بحث عن authentication</span>
+<span class="k">findstr</span> /s /i /n <span class="s">"auth token bearer jwt"</span> miqat_output\asm\*.txt
+
+<span class="c"># بحث عن booking/payment</span>
+<span class="k">findstr</span> /s /i /n <span class="s">"book payment pay price"</span> miqat_output\asm\*.txt
+
+<span class="c"># بحث عن premium/subscription</span>
+<span class="k">findstr</span> /s /i /n <span class="s">"premium subscribe purchase isPro"</span> miqat_output\asm\*.txt
+
+<span class="c"># بحث عن Storage</span>
+<span class="k">findstr</span> /s /i /n <span class="s">"SharedPreferences secure_storage Hive cache"</span> miqat_output\asm\*.txt
+
+<span class="c"># عرض كل الـ Strings في Object Pool</span>
+<span class="k">findstr</span> <span class="s">"String"</span> miqat_output\pp.txt
+
+<span class="c"># بحث عن Objects - بـ Python لنتائج أفضل</span>
+<span class="k">python</span> -c <span class="s">"
+import re
+with open(r'miqat_output\objs.txt','r',encoding='utf-8',errors='ignore') as f:
+    lines = f.readlines()
+for i,line in enumerate(lines):
+    if re.search(r'Token|ApiClient|AuthRepository', line, re.I):
+        for j in range(max(0,i),min(len(lines),i+6)):
+            print(lines[j], end='')
+        print('---')
+"</span></pre>
+      </div>
     </div>
   </div>
 </div>
@@ -457,6 +587,11 @@ for url in re.findall(rb'https?://[\x20-\x7e]{5,200}', data):
       <h3>استخراج كل الـ Strings المفيدة</h3>
     </div>
     <div class="cmd-body">
+      <div class="os-tabs">
+        <div class="os-tab linux-tab active" onclick="switchTab(this,'linux')">Linux / macOS <span class="platform-badge badge-linux">strings + grep</span></div>
+        <div class="os-tab win-tab" onclick="switchTab(this,'win')">Windows <span class="platform-badge badge-win">Python</span></div>
+      </div>
+      <div class="os-content linux active">
 <pre><span class="c"># كل الـ strings الطويلة (> 10 chars)</span>
 <span class="k">strings</span> -n 10 miqat_extracted/lib/arm64-v8a/libapp.so > all_strings.txt
 
@@ -477,6 +612,52 @@ for url in re.findall(rb'https?://[\x20-\x7e]{5,200}', data):
 
 <span class="c"># حذف الملف المؤقت</span>
 <span class="k">rm</span> all_strings.txt</pre>
+      </div>
+      <div class="os-content win">
+<pre><span class="c"># === سكريبت Python شامل - احفظه كـ extract_strings.py ===</span>
+<span class="k">python</span> -c <span class="s">"
+import re, sys
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+data = open(r'miqat_extracted\lib\arm64-v8a\libapp.so', 'rb').read()
+strs = [s.decode('ascii','ignore') for s in re.findall(rb'[\x20-\x7e]{10,}', data)]
+
+print('=== HTTP Headers ===')
+for s in strs:
+    if re.search(r'(?i)content-type|authorization|x-api|accept|user-agent', s):
+        print(s)
+
+print('\n=== JSON Keys ===')
+for s in strs:
+    if re.search(r'(?i)email|phone|name|status|message|data|error', s):
+        print(s)
+
+print('\n=== Error Messages ===')
+for s in strs:
+    if re.search(r'(?i)error|fail|invalid|expired|unauthorized|forbidden', s):
+        print(s)
+
+print('\n=== SharedPreferences Keys ===')
+for s in strs:
+    if re.search(r'(?i)pref_|_key|_token|is_logged|user_id|session', s):
+        print(s)
+
+print('\n=== Firebase Config ===')
+for s in strs:
+    if re.search(r'(?i)firebase|firestore|messaging|analytics|crashlytics', s):
+        print(s)
+"</span>
+
+<span class="c"># أو أوامر فردية:</span>
+
+<span class="c"># HTTP Headers فقط</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();[print(s.decode('ascii','ignore')) for s in re.findall(rb'[\x20-\x7e]{10,}',data) if re.search(rb'(?i)content-type|authorization|x-api|accept|user-agent',s)]"</span>
+
+<span class="c"># Error Messages فقط</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();[print(s.decode('ascii','ignore')) for s in re.findall(rb'[\x20-\x7e]{10,}',data) if re.search(rb'(?i)error|fail|invalid|expired|unauthorized',s)]"</span>
+
+<span class="c"># SharedPreferences Keys فقط</span>
+<span class="k">python</span> -c <span class="s">"import re;data=open(r'miqat_extracted\lib\arm64-v8a\libapp.so','rb').read();[print(s.decode('ascii','ignore')) for s in re.findall(rb'[\x20-\x7e]{10,}',data) if re.search(rb'(?i)pref_|_key|_token|is_logged|user_id|session',s)]"</span></pre>
+      </div>
     </div>
   </div>
 </div>
@@ -585,6 +766,7 @@ for url in re.findall(rb'https?://[\x20-\x7e]{5,200}', data):
 <pre><span class="c">// hook_dart_function.js</span>
 <span class="c">// بعد تشغيل Blutter، ابحث عن عنوان الدالة من asm/ files</span>
 <span class="c">// مثال: grep -rn "login" miqat_output/asm/</span>
+<span class="c">// Windows: findstr /s /i /n "login" miqat_output\asm\*.txt</span>
 
 <span class="k">var</span> libapp = <span class="f">Module.findBaseAddress</span>(<span class="s">'libapp.so'</span>);
 
@@ -903,6 +1085,11 @@ hookFlutterSSL();</pre>
       <h3>إعادة بناء وتوقيع APK</h3>
     </div>
     <div class="cmd-body">
+      <div class="os-tabs">
+        <div class="os-tab linux-tab active" onclick="switchTab(this,'linux')">Linux / macOS</div>
+        <div class="os-tab win-tab" onclick="switchTab(this,'win')">Windows (PowerShell)</div>
+      </div>
+      <div class="os-content linux active">
 <pre><span class="c"># 1. فك بـ apktool</span>
 <span class="k">apktool</span> d <span class="s">"miqat user.apk"</span> -o miqat_patched
 
@@ -928,6 +1115,28 @@ hookFlutterSSL();</pre>
 
 <span class="c"># 7. التثبيت</span>
 <span class="k">adb install</span> miqat_final.apk</pre>
+      </div>
+      <div class="os-content win">
+<pre><span class="c"># 1. فك بـ apktool</span>
+<span class="k">apktool</span> d <span class="s">"miqat user.apk"</span> -o miqat_patched
+
+<span class="c"># 2. عدّل الملفات المطلوبة (نفس Linux)</span>
+
+<span class="c"># 3. إعادة البناء</span>
+<span class="k">apktool</span> b miqat_patched -o miqat_patched.apk
+
+<span class="c"># 4. إنشاء keystore (PowerShell - لاحظ & والمسار الكامل)</span>
+<span class="k">&</span> <span class="s">"C:\Program Files\Java\jdk-22\bin\keytool"</span> -genkey -v -keystore debug.keystore -alias debug -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname <span class="s">"CN=Debug"</span>
+
+<span class="c"># 5. التوقيع</span>
+<span class="k">apksigner</span> sign --ks debug.keystore --ks-pass pass:android miqat_patched.apk
+
+<span class="c"># 6. Zipalign</span>
+<span class="k">zipalign</span> -v 4 miqat_patched.apk miqat_final.apk
+
+<span class="c"># 7. التثبيت</span>
+<span class="k">adb install</span> miqat_final.apk</pre>
+      </div>
     </div>
   </div>
 
@@ -1141,6 +1350,11 @@ hookFlutterSSL();</pre>
       <span class="cmd-tag" style="background:rgba(74,222,128,0.1);color:var(--green)">ALL-IN-ONE</span>
     </div>
     <div class="cmd-body">
+      <div class="os-tabs">
+        <div class="os-tab linux-tab active" onclick="switchTab(this,'linux')">Linux / macOS <span class="platform-badge badge-linux">Bash</span></div>
+        <div class="os-tab win-tab" onclick="switchTab(this,'win')">Windows <span class="platform-badge badge-win">Python</span></div>
+      </div>
+      <div class="os-content linux active">
 <pre><span class="c">#!/bin/bash</span>
 <span class="c"># full_analysis.sh - تحليل كامل لـ Flutter APK</span>
 
@@ -1180,6 +1394,69 @@ with open('$OUT/extracted/lib/arm64-v8a/libflutter.so', 'rb') as f:
 <span class="k">echo</span> <span class="s">"  Endpoints: $(wc -l < $OUT/api_endpoints.txt)"</span>
 <span class="k">echo</span> <span class="s">"  Secrets:   $(wc -l < $OUT/secrets.txt)"</span>
 <span class="k">echo</span> <span class="s">"  Dart files:$(wc -l < $OUT/dart_files.txt)"</span></pre>
+      </div>
+      <div class="os-content win">
+<pre><span class="c"># full_analysis.py - احفظ هذا كملف Python وشغّله</span>
+<span class="c"># python full_analysis.py</span>
+
+<span class="k">python</span> -c <span class="s">"
+import re, os, sys, zipfile
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
+APK = 'miqat user.apk'
+OUT = 'analysis_output'
+
+# 1. Extract APK
+print('[1/6] Extracting APK...')
+os.makedirs(os.path.join(OUT, 'extracted'), exist_ok=True)
+with zipfile.ZipFile(APK) as z:
+    z.extractall(os.path.join(OUT, 'extracted'))
+
+# 2. Dart version
+print('[2/6] Extracting Dart version...')
+flutter_path = os.path.join(OUT, r'extracted\lib\arm64-v8a\libflutter.so')
+with open(flutter_path, 'rb') as f:
+    fdata = f.read()
+m = re.search(rb'([\d]+\.[\d]+\.[\d]+) \((stable|beta|dev)\)', fdata)
+if m: print(f'  Dart: {m.group(1).decode()} ({m.group(2).decode()})')
+
+# 3. Extract strings
+print('[3/6] Extracting strings...')
+app_path = os.path.join(OUT, r'extracted\lib\arm64-v8a\libapp.so')
+with open(app_path, 'rb') as f:
+    data = f.read()
+all_strs = [s.decode('ascii','ignore') for s in re.findall(rb'[\x20-\x7e]{8,}', data)]
+
+# 4. URLs
+print('[4/6] Finding URLs...')
+urls = [s for s in all_strs if re.search(r'(?i)https?://', s)]
+with open(os.path.join(OUT, 'urls.txt'), 'w') as f:
+    f.write('\n'.join(urls))
+
+# 5. API endpoints
+print('[5/6] Finding API endpoints...')
+apis = [s for s in all_strs if '/api/' in s.lower()]
+with open(os.path.join(OUT, 'api_endpoints.txt'), 'w') as f:
+    f.write('\n'.join(apis))
+
+# 6. Secrets
+print('[6/6] Finding secrets...')
+secrets = [s for s in all_strs if re.search(r'(?i)key|secret|token|password|firebase|AIza', s)]
+with open(os.path.join(OUT, 'secrets.txt'), 'w') as f:
+    f.write('\n'.join(secrets))
+
+# Dart files
+dart_files = sorted(set(s for s in all_strs if '.dart' in s))
+with open(os.path.join(OUT, 'dart_files.txt'), 'w') as f:
+    f.write('\n'.join(dart_files))
+
+print(f'[DONE] Results in {OUT}/')
+print(f'  URLs:       {len(urls)}')
+print(f'  Endpoints:  {len(apis)}')
+print(f'  Secrets:    {len(secrets)}')
+print(f'  Dart files: {len(dart_files)}')
+"</span></pre>
+      </div>
     </div>
   </div>
 </div>
@@ -1193,6 +1470,16 @@ with open('$OUT/extracted/lib/arm64-v8a/libflutter.so', 'rb') as f:
 </div><!-- container -->
 
 <script>
+// Tab switching
+function switchTab(el, os) {
+    const block = el.closest('.cmd-body') || el.closest('.cmd-block').querySelector('.cmd-body');
+    block.querySelectorAll('.os-tab').forEach(t => t.classList.remove('active'));
+    block.querySelectorAll('.os-content').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    block.querySelectorAll('.os-content.' + os).forEach(c => c.classList.add('active'));
+}
+
+// Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(a=>{
   a.addEventListener('click',e=>{
     e.preventDefault();
